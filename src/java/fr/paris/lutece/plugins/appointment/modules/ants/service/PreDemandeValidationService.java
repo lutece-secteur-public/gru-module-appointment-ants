@@ -3,14 +3,20 @@ package fr.paris.lutece.plugins.appointment.modules.ants.service;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
 import fr.paris.lutece.util.httpaccess.HttpAccess;
+import fr.paris.lutece.plugins.appointment.modules.ants.pojo.PredemandePOJO;
 import fr.paris.lutece.portal.service.util.AppLogService;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 import com.github.openjson.JSONArray;
 import com.github.openjson.JSONObject;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 
 
 public class PreDemandeValidationService {
@@ -30,40 +36,47 @@ public class PreDemandeValidationService {
 		   purge       // N/A
 		 }
 
-	    public static boolean processPreDemandeCodes(List<String> codes) {
-
-			for (String code : codes)
+	    public static boolean processPreDemandeCodes(List<String> codes) throws IOException 
+	    {
+			String response = getPreDemandeStatusAndAppointments(codes);
+			
+			if (response != null)
 			{
-				if (!VerificationPredemandeCodePatternService.isMatchesPattern(code))
-				{
-					return false;
-				}
-			}
-
-			String jsonResponse = getPreDemandeStatusAndAppointments(codes);
-
-			if (jsonResponse != null)
-			{
-				String status;
-				JSONArray appointmentsArray;
-				JSONObject jsonObject = new JSONObject(jsonResponse);
-
-				for (String key : jsonObject.keySet())
-				{
-					JSONObject innerObject = jsonObject.getJSONObject(key);
-					status = innerObject.getString("status");
-					appointmentsArray = innerObject.getJSONArray("appointments");
-
-					PreDemandeStatus statusEnum = PreDemandeStatus.valueOf(status);
-					if (statusEnum != PreDemandeStatus.validated || appointmentsArray.length() > 0)
-					{
-						return false;
-					}
-				}
-			}
+				Map<String, PredemandePOJO> responseAsMap = getStatusResponseAsMap(response);
+				
+				for (Map.Entry<String, PredemandePOJO> entry : responseAsMap.entrySet()) 
+				{ 
+		          PredemandePOJO predemande = entry.getValue();
+		           
+		          List<PredemandePOJO.Appointment> appointments = predemande.getAppointments();
+		            
+		          if (!appointments.isEmpty() || !PreDemandeStatus.valueOf(predemande.getStatus()).equals(PreDemandeStatus.validated))
+		          {
+		            return false;
+		          }   
+		        }
+	    	}
 			return true;
 		}
+	    
+	    public static Map<String, PredemandePOJO> getStatusResponseAsMap(String response) throws IOException {
+	        ObjectMapper mapper = new ObjectMapper();
+	        JsonNode jsonNode = mapper.readTree(response);
 
+	        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
+	        Map<String, PredemandePOJO> resultMap = new HashMap<>();
+
+	        while (fieldsIterator.hasNext()) {
+	            Map.Entry<String, JsonNode> entry = fieldsIterator.next();
+	            String fieldName = entry.getKey();
+	            JsonNode field = entry.getValue();
+
+	            PredemandePOJO predemande = mapper.readerFor(PredemandePOJO.class).readValue(field.toString());
+	            resultMap.put(fieldName, predemande);
+	        }
+
+	        return resultMap;
+	    }
 
 	    private static String getPreDemandeStatusAndAppointments(List<String> codes) 
 	    {
