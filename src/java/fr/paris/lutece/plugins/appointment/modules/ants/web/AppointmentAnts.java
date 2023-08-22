@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -45,8 +46,8 @@ import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
-import fr.paris.lutece.plugins.appointment.modules.ants.service.GetPredemandeCodeList;
 import fr.paris.lutece.plugins.appointment.modules.ants.service.PreDemandeValidationService;
+import fr.paris.lutece.plugins.appointment.modules.ants.utils.PredemandeCodeUtils;
 
 
 @Controller( xpageName = "appointmentants", pageTitleI18nKey = "module.appointment.ants.pageTitle", pagePathI18nKey = "module.appointment.ants.pagePathLabel" )
@@ -87,13 +88,13 @@ public class AppointmentAnts extends MVCApplication
      * @return The view
      */
     @Action( value = ACTION_PRE_SEARCH )
-    public XPage presearch( HttpServletRequest request )
+    public XPage presearch( HttpServletRequest request ) throws IOException 
     {
     	int nbSlots = Integer.parseInt(request.getParameter(PARAMETER_TOTAL_PERSONS_INPUT_VALUE));
     	String fieldsErrorMessage = AppPropertiesService.getProperty(PROPERTY_ERROR_MESSAGE);
     	
         List<String> predemandeCodeValueList = new ArrayList<>();
-        List<String> predemandeCodeKeyList = GetPredemandeCodeList.getKeyPredemandeCodeList(PROPERTY_ID_PREDEMANDE_CODE_SUFFIX, nbSlots);
+        List<String> predemandeCodeKeyList = PredemandeCodeUtils.getKeyPredemandeCodeList(PROPERTY_ID_PREDEMANDE_CODE_SUFFIX, nbSlots);
 
     	for(String codeKey : predemandeCodeKeyList) {
     		String predemandeCode = request.getParameter(codeKey);
