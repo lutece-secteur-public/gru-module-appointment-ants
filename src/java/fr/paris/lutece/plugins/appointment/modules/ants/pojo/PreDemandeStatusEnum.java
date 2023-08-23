@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2023, City of Paris
+ * Copyright (c) 2002-2022, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,24 +32,16 @@
  * License 1.0
  */
 
-package fr.paris.lutece.plugins.appointment.modules.ants.service;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class VerificationPredemandeCodePatternService {
+package fr.paris.lutece.plugins.appointment.modules.ants.pojo;
 
-    private static final String PROPERTY_PATTERN = "^([A-Z0-9]{10}[,;:\\-/.\\s])*[A-Z0-9]{10}$";
-	
-	public static boolean isMatchesPattern(String predemandeCodeList)
-	{
-		String pattern = PROPERTY_PATTERN;
-	    Pattern regexPattern = Pattern.compile(pattern);
-	    Matcher matcher = regexPattern.matcher(predemandeCodeList);
-        if (!matcher.matches()) {
-            return false;
-        }
-	    return true; 
-	}
-
-
+public enum PreDemandeStatusEnum {
+	   
+	   brouillon,  // N/A
+	   consumed,   // « consumed »
+	   validated,  // « validated »
+	   declared,   // « declared »
+	   unknown,    // « unknown »
+	   expired,    // « expired »
+	   purge       // N/A
 }
