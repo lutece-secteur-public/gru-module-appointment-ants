@@ -49,8 +49,9 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.commons.lang3.StringUtils;
+
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 public class PreDemandeValidationService {
@@ -74,7 +75,7 @@ public class PreDemandeValidationService {
 		           
 		      List<PredemandePOJO.Appointment> appointments = predemande.getAppointments();
 		            
-		      if (CollectionUtils.isNotEmpty(appointments) ||PreDemandeStatusEnum.validated.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus())))
+		      if (CollectionUtils.isNotEmpty(appointments) || !PreDemandeStatusEnum.validated.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus())))
 		      {
 		        return false;
 		      }   
