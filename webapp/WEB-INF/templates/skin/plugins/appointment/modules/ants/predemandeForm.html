@@ -17,6 +17,11 @@
 		 <form method="post" class="form-horizontal" action="jsp/site/Portal.jsp?page=appointmentants&action=presearch" >
 			 <@messages errors=errors />
 			 <input name="page" value="appointmentants" type="hidden">
+			 <input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden"> 
+			 <input name="id_form" id="id_form" value="${id_form!''}" type="hidden"> 
+			 <input name="nbPlacesToTake" id="nbPlacesToTake" value="${nbPlacesToTake!''}" type="hidden"> 
+			 <input name="anchor" id="anchor" value="${anchor!''}" type="hidden"> 
+			 
 		 	<div class="row">
 		 		<div class="col-xs-12 col-sm-6">
 		 			<div class="form-group" id="input-container">
