@@ -92,7 +92,6 @@ public class AppointmentAnts extends MVCApplication
 	private static final String MARKER_NB_PLACES_TO_TAKE = "nbPlacesToTake";
 	private static final String MARKER_ANCHOR = "anchor";
     
-
     /**
      * Returns the content of the page preDemandeForm.
      *
@@ -144,6 +143,7 @@ public class AppointmentAnts extends MVCApplication
         boolean isAllCodesNotValid =  PreDemandeValidationService.processPreDemandeCodes(predemandeCodeValueList);
            
         String role = ROLE_NONE;
+        
         if(!isAllCodesNotValid)
         {
             role = EXCLUDE_ROLE;

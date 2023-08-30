@@ -123,4 +123,5 @@ public class PredemandePOJO {
 			this.editorComment = editorComment;
 		}
 	}
+
 }
