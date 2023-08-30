@@ -40,65 +40,87 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties( ignoreUnknown = true )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PredemandePOJO {
 
-	@JsonProperty( "status" )
+	@JsonProperty("status")
 	private String status;
 
-	@JsonProperty( "appointments" )
+	@JsonProperty("appointments")
 	private List<Appointment> appointments;
-	
-	//Getter & setters
-	public String getStatus() {
+
+	// Getter & setters
+	public String getStatus()
+	{
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(String status) 
+	{
 		this.status = status;
 	}
 
-	public List<Appointment> getAppointments() {
+	public List<Appointment> getAppointments() 
+	{
 		return appointments;
 	}
 
-	public void setAppointments(List<Appointment> appointments) {
+	public void setAppointments(List<Appointment> appointments) 
+	{
 		this.appointments = appointments;
 	}
-	
-	public class Appointment {
-	   @JsonProperty("management_url")
-	   private String managementUrl;
 
-	   @JsonProperty("meeting_point")
-	   private String meetingPoint;
+	public static class Appointment {
+		@JsonProperty("management_url")
+		private String managementUrl;
 
-	   @JsonProperty("appointment_date")
-	   private String appointmentDate;
+		@JsonProperty("meeting_point")
+		private String meetingPoint;
 
-	   //Getter & setters
-	   public String getManagementUrl() {
+		@JsonProperty("appointment_date")
+		private String appointmentDate;
+
+		@JsonProperty("editor_comment")
+		private String editorComment;
+
+		// Getter & setters
+		public String getManagementUrl() 
+		{
 			return managementUrl;
-	   }
-	
-	   public String getMeetingPoint() {
+		}
+
+		public String getMeetingPoint() 
+		{
 			return meetingPoint;
 		}
-	
-		public String getAppointmentDate() {
+
+		public String getAppointmentDate()
+		{
 			return appointmentDate;
 		}
 
-		public void setManagementUrl(String managementUrl) {
+		public String getEditorComment() {
+			return editorComment;
+		}
+
+		public void setManagementUrl(String managementUrl) 
+		{
 			this.managementUrl = managementUrl;
 		}
-		
-		public void setMeetingPoint(String meetingPoint) {
+
+		public void setMeetingPoint(String meetingPoint) 
+		{
 			this.meetingPoint = meetingPoint;
 		}
-		
-		public void setAppointmentDate(String appointmentDate) {
+
+		public void setAppointmentDate(String appointmentDate)
+		{
 			this.appointmentDate = appointmentDate;
 		}
-	 }
+
+		public void setEditorComment(String editorComment)
+		{
+			this.editorComment = editorComment;
+		}
+	}
 }

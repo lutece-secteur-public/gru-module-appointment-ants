@@ -58,74 +58,69 @@ public class PreDemandeValidationService {
 
 	private static final String PROPERTY_ENDPOINT_STATUS = AppPropertiesService.getProperty("ants.api.opt.get.status");
 	private static final String PROPERTY_API_OPT_AUTH_TOKEN_KEY = AppPropertiesService.getProperty("ants.auth.token");
-	private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService.getProperty("ants.api.opt.auth.token");
-	
-	
-	public static boolean processPreDemandeCodes(List<String> codes) throws IOException 
-	{
+	private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService
+			.getProperty("ants.api.opt.auth.token");
+
+	public static boolean processPreDemandeCodes(List<String> codes) throws IOException {
 		String response = getPreDemandeStatusAndAppointments(codes);
-			
-		if (StringUtils.isNotBlank(response))
-		{
+
+		if (StringUtils.isNotBlank(response)) {
 			Map<String, PredemandePOJO> responseAsMap = getStatusResponseAsMap(response);
-				
-			for (Map.Entry<String, PredemandePOJO> entry : responseAsMap.entrySet()) 
-			{ 
-		      PredemandePOJO predemande = entry.getValue();
-		           
-		      List<PredemandePOJO.Appointment> appointments = predemande.getAppointments();
-		            
-		      if (CollectionUtils.isNotEmpty(appointments) || !PreDemandeStatusEnum.validated.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus())))
-		      {
-		        return false;
-		      }   
-		    }
-	    }
-	  return true;
+
+			for (Map.Entry<String, PredemandePOJO> entry : responseAsMap.entrySet()) {
+				PredemandePOJO predemande = entry.getValue();
+
+				List<PredemandePOJO.Appointment> appointments = predemande.getAppointments();
+
+				if (CollectionUtils.isNotEmpty(appointments) || !PreDemandeStatusEnum.validated
+						.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus()))) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
-	    
-	    public static Map<String, PredemandePOJO> getStatusResponseAsMap(String response) throws IOException {
-	        ObjectMapper mapper = new ObjectMapper();
-	        JsonNode jsonNode = mapper.readTree(response);
 
-	        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
-	        Map<String, PredemandePOJO> resultMap = new HashMap<>();
+	public static Map<String, PredemandePOJO> getStatusResponseAsMap(String response) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = mapper.readTree(response);
 
-	        while (fieldsIterator.hasNext()) {
-	            Map.Entry<String, JsonNode> entry = fieldsIterator.next();
-	            String fieldName = entry.getKey();
-	            JsonNode field = entry.getValue();
+		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
+		Map<String, PredemandePOJO> resultMap = new HashMap<>();
 
-	            PredemandePOJO predemande = mapper.readerFor(PredemandePOJO.class).readValue(field.toString());
-	            resultMap.put(fieldName, predemande);
-	        }
+		while (fieldsIterator.hasNext()) {
+			Map.Entry<String, JsonNode> entry = fieldsIterator.next();
+			String fieldName = entry.getKey();
+			JsonNode field = entry.getValue();
 
-	        return resultMap;
-	    }
+			PredemandePOJO predemande = mapper.readerFor(PredemandePOJO.class).readValue(field.toString());
+			resultMap.put(fieldName, predemande);
+		}
 
-	    private static String getPreDemandeStatusAndAppointments(List<String> codes) 
-	    {
-	        StringBuilder urlBuilder = new StringBuilder(PROPERTY_ENDPOINT_STATUS);
+		return resultMap;
+	}
 
-	        for (String code : codes) {
-	            urlBuilder.append("application_ids=").append(code).append("&");
-	        }
+	private static String getPreDemandeStatusAndAppointments(List<String> codes) {
+		StringBuilder urlBuilder = new StringBuilder(PROPERTY_ENDPOINT_STATUS);
 
-	        // Remove the trailing "&"
-	        String endpointAPI = urlBuilder.toString();
-	        endpointAPI = endpointAPI.substring(0, endpointAPI.length() - 1);
+		for (String code : codes) {
+			urlBuilder.append("application_ids=").append(code).append("&");
+		}
 
-	        HttpAccess httpAccess = new HttpAccess();
+		// Remove the trailing "&"
+		String endpointAPI = urlBuilder.toString();
+		endpointAPI = endpointAPI.substring(0, endpointAPI.length() - 1);
 
-	        try {
-	            Map<String, String> headers = new HashMap<>();
-	            headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
-	            return httpAccess.doGet(endpointAPI,null , null, headers);
-	        }
-	        catch (HttpAccessException ex) {
-	            AppLogService.error("Error calling API {}", endpointAPI, ex);
-	        }
+		HttpAccess httpAccess = new HttpAccess();
 
-	        return null;
-	    }
+		try {
+			Map<String, String> headers = new HashMap<>();
+			headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
+			return httpAccess.doGet(endpointAPI, null, null, headers);
+		} catch (HttpAccessException ex) {
+			AppLogService.error("Error calling API {}", endpointAPI, ex);
+		}
+
+		return null;
+	}
 }
