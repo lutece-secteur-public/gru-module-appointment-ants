@@ -76,21 +76,15 @@ public class AppointmentAnts extends MVCApplication
     private static final String PARAMETER_NB_SLOTS = "nb_consecutive_slots";
     private static final String PARAMETER_CATEGORIE = "category";
     private static final String PARAMETER_CATEGORIE_TITRES = "titres";
-    private static final String PARAMETER_ROLE = "role";
     private static final String PARAMETER_DATE_TIME = "starting_date_time";
     private static final String PARAMETER_PROPERTY_ID_FORM = "id_form";
     private static final String PARAMETER_PLACES_TAKED_NOMBER= "nbPlacesToTake";
-    private static final String PARAMETER_ANCHOR = "anchor";
     private static final String PARAMETER_IDS_APPLICATION = "application_ids";
-    
-    private static final String ROLE_NONE = "none";
-    private static final String EXCLUDE_ROLE = AppPropertiesService.getProperty( "appointment-ants.exclude.role", "none" );
 
     //MARKERS
 	private static final String MARKER_STRATING_DATE_TIME = "starting_date_time";
 	private static final String MARKER_ID_FORM = "id_form";
 	private static final String MARKER_NB_PLACES_TO_TAKE = "nbPlacesToTake";
-	private static final String MARKER_ANCHOR = "anchor";
     
     /**
      * Returns the content of the page preDemandeForm.
@@ -142,13 +136,10 @@ public class AppointmentAnts extends MVCApplication
     	
         boolean isAllCodesNotValid =  PreDemandeValidationService.processPreDemandeCodes(predemandeCodeValueList);
            
-        String role = ROLE_NONE;
-        
         if(!isAllCodesNotValid)
         {
-            role = EXCLUDE_ROLE;
-            addError(fieldsErrorMessage);
-            redirectView(request, VIEW_PREDEMANDEFORM);
+           addError(fieldsErrorMessage);
+           redirectView(request, VIEW_PREDEMANDEFORM);
         }
         else
         {
@@ -174,7 +165,6 @@ public class AppointmentAnts extends MVCApplication
 	            url.addParameter( MVCUtils.PARAMETER_PAGE, "appointmentsearch" );
 	            url.addParameter( MVCUtils.PARAMETER_VIEW, "search" );
 	            url.addParameter( PARAMETER_NB_SLOTS, nbSlots );
-	            url.addParameter( PARAMETER_ROLE, role );
 	            url.addParameter( PARAMETER_CATEGORIE, PARAMETER_CATEGORIE_TITRES );
 	            
 	            for(String codeValue : predemandeCodeValueList) 
