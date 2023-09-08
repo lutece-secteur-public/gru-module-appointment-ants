@@ -14,54 +14,61 @@
 <div class="row currentStepContentRow">
 	<div class="col-xs-12">
 		<div class="container" id="current_step">
-		 <form method="post" class="form-horizontal" action="jsp/site/Portal.jsp?page=appointmentants&action=presearch" >
-			 <@messages errors=errors />
-			 <input name="page" value="appointmentants" type="hidden">
-			 <input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden"> 
-			 <input name="id_form" id="id_form" value="${id_form!''}" type="hidden"> 
-			 <input name="nbPlacesToTake" id="nbPlacesToTake" value="${nbPlacesToTake!''}" type="hidden"> 
-			 
-		 	<div class="row">
-		 		<div class="col-xs-12 col-sm-6">
-		 			<div class="form-group" id="input-container">
-		 				<label class="label-text"> #i18n{module.appointment.ants.predemandenumber.label} </label>
-		 				<div class="col-xs-12 col-sm-8">
-		 					 <input type="number" class="form-control" id="totalPersonsInput"  name="totalPersonsInput" min="1" max="6" value="1"
-                                           oninput="handleNumberChange(event)" onkeydown="event.preventDefault()" required />
-                             <p class="help-text"><small>#i18n{module.appointment.ants.predemandenumber.help}</small> </p>
+			<form method="post" class="form-horizontal"
+				action="jsp/site/Portal.jsp?page=appointmentants&action=presearch">
+				<@messages errors=errors />
+				<input name="page" value="appointmentants" type="hidden">
+				<input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden">
+				<input name="id_form" id="id_form" value="${id_form!''}" type="hidden">
+
+				<div class="row">
+					<div class="col-xs-12 col-sm-6">
+						<div class="form-group" id="input-container">
+							<label class="nbPlacesToTake">
+								#i18n{module.appointment.ants.predemandenumber.label} </label>
+							<div class="col-xs-12 col-sm-8">
+								<input type="number" class="form-control" id="nbPlacesToTake"
+									name="nbPlacesToTake" min="1" max="6"
+								<#if nbPlacesToTake??> 
+									value=${nbPlacesToTake!''} 
+								<#else>
+									value="1"
+								</#if>
+								title=""
+								oninput="displayInputsFromAntsModuleEvent(event)"
+								onkeydown="event.preventDefault()" required />
+								<p class="help-text"><small>#i18n{module.appointment.ants.predemandenumber.help}</small> </p>
 		 				</div>
-		 			 </div>
-		 			 <div class="form-group">
-		 				<label class="col-xs-12 col-sm-4 control-label" id="label-default">#i18n{module.appointment.ants.predemandeserial.label_default} </label>
-		 				<div class="col-xs-12 col-sm-8">
-		 					<input type="text" class="form-control" name="predemande_code_1"  id="predemande_code_1" pattern="[A-Z0-9]{10}" maxlength=10 required />
-                            <p class="help-text"><small>#i18n{module.appointment.ants.predemandeserial.help}  <a href="https://ants.gouv.fr/"> ants.gouv.fr</a></small></span>
-		 					<div id="warning-message" style="color: red;"></div>
-		 				</div>
-		 			 </div>
-		 			 <!-- This container will hold dynamically added inputs -->
-		 			 <div class="form-group">
-		 				<@button type="submit" class="btn btn-primary" name="action_presearch" buttonIcon='check' />
-		 			 </div>
-		 		</div>
-		 		<div  class="col-xs-12 col-sm-6">
-		 			<div  class="col-xs-12 col-sm-6">
-						<div class="formGroupContainer" id="message-search"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-xs-12 col-sm-4 control-label"
+								id="label-default">#i18n{module.appointment.ants.predemandeserial.label_default}
+							</label>
+							<div class="col-xs-12 col-sm-8">
+								<input type="text" class="form-control" name="predemande_code_1"
+									id="predemande_code_1" pattern="[A-Z0-9]{10}" maxlength=10
+									required />
+								<p class="help-text">
+									<small>#i18n{module.appointment.ants.predemandeserial.help}
+										<a href="https://ants.gouv.fr/"> ants.gouv.fr</a>
+									</small></span>
+								<div id="warning-message" style="color: red;"></div>
+							</div>
+						</div>
+						<!-- This container will hold dynamically added inputs -->
+						<div class="form-group"><@button type="submit" class="btn
+							btn-primary" name="action_presearch" buttonIcon='check' /></div>
 					</div>
-		 		</div>
-		 	</div>
-		 </form>
+
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
 
 <script>
-
-    function handleNumberChange(event) {
-        const inputValue = parseInt(event.target.value);
-        const inputContainer = document.getElementById('input-container');
-        const labelDefault = document.getElementById('label-default');
-        const labels = [
+	
+	const labels = [
             "#i18n{module.appointment.ants.predemandeserial.label_default}",
             "#i18n{module.appointment.ants.predemandeserial.label_1}",
             "#i18n{module.appointment.ants.predemandeserial.label_2}",
@@ -69,8 +76,26 @@
             "#i18n{module.appointment.ants.predemandeserial.label_4}",
             "#i18n{module.appointment.ants.predemandeserial.label_5}",
             "#i18n{module.appointment.ants.predemandeserial.label_6}"
-        ];
-
+    ];
+	
+	const inputElementType = "text";
+	const inputElementNameSuffix = "predemande_code_";
+	const inputElementPattern = "[A-Z0-9]{10}";
+	const divTagName = "div";
+	const labelTagName = "label";
+	const inputTagName = "input";
+	const spanTagName = "span";
+	const inputRowClassName = "input-row";
+	const inputWrapperClassName = "input-wrapper";
+	const helptTextClassName = "help-text";
+	const antsLink = "https://ants.gouv.fr";
+	const firstPartAntsPlatformLink = '<a href="';
+	const lastPartAntsPlatformLink = '">ants.gouv.fr</a>';
+	const predemandeInputHelpMassage ="#i18n{module.appointment.ants.predemandeserial.help}";
+	const erroMessage ="le nombre de personne selectionné ne doit pas dépasser 6";
+	
+	function predemandeCodeInput(inputValue, inputContainer, labelDefault)
+	{
         // Clear existing inputs except the first one
         while (inputContainer.childElementCount > 2) {
             inputContainer.removeChild(inputContainer.lastChild);
@@ -82,39 +107,62 @@
         // Create additional input elements based on the entered number
         const fragment = document.createDocumentFragment();
         for (let i = 2; i <= inputValue; i++) {
-            const inputRow = document.createElement("div");
-            inputRow.classList.add("input-row");
+            const inputRow = document.createElement(divTagName);
+            inputRow.classList.add(inputRowClassName);
 
-            const inputLabel = document.createElement("label");
+            const inputLabel = document.createElement(labelTagName);
             inputLabel.textContent = labels[i];
             inputRow.appendChild(inputLabel);
 
-            const inputWrapper = document.createElement("div");
-            inputWrapper.classList.add("input-wrapper");
+            const inputWrapper = document.createElement(divTagName);
+            inputWrapper.classList.add(inputWrapperClassName);
 
-            const inputElement = document.createElement("input");
-            inputElement.type = "text";
-            inputElement.name = "predemande_code_" + i;
-            inputElement.id= "predemande_code_" + i;
-            inputElement.pattern="[A-Z0-9]{10}";
-            inputWrapper.appendChild(inputElement);
-
-            const helpText = document.createElement("span");
-            helpText.classList.add("help-text");
-            var antsLink = '<a href="https://ants.gouv.fr">ants.gouv.fr</a>';
-            helpText.innerHTML = "#i18n{module.appointment.ants.predemandeserial.help}".concat(" ").concat(antsLink);
-            inputWrapper.appendChild(helpText);
+            const inputElement = document.createElement(inputTagName);
+            inputElement.type = inputElementType;
+            inputElement.name = inputElementNameSuffix.concat(i);
+            inputElement.id= inputElementNameSuffix.concat(i);
+            inputElement.pattern= inputElementPattern;
             
+			inputWrapper.appendChild(inputElement);
+			
+			var linkToAntsPlateform = firstPartAntsPlatformLink.concat(antsLink).concat(lastPartAntsPlatformLink);
+
+            const helpText = document.createElement(spanTagName);
+            helpText.classList.add(helptTextClassName);
+            helpText.innerHTML = predemandeInputHelpMassage.concat(" ").concat(linkToAntsPlateform);
+            inputWrapper.appendChild(helpText);
+       
             inputRow.appendChild(inputWrapper);
             fragment.appendChild(inputRow);
         }
 
         inputContainer.appendChild(fragment);
+	}
+	
+	function displayInputsFromAntsUrlParameterValue()
+	{
+		const inputValue = document.getElementById('nbPlacesToTake').value;
+		const inputContainer = document.getElementById('input-container');
+        const labelDefault = document.getElementById('label-default');
+		if (inputValue <= 6) 
+		{
+			predemandeCodeInput(inputValue, inputContainer, labelDefault);
+		}
+		else
+		{
+			alert(erroMessage);
+		}
+	}
+	
+	displayInputsFromAntsUrlParameterValue();
+	
+    function displayInputsFromAntsModuleEvent(event) 
+	{
+        const inputValue = parseInt(event.target.value);
+        const inputContainer = document.getElementById('input-container');
+        const labelDefault = document.getElementById('label-default');
+        
+		predemandeCodeInput(inputValue, inputContainer, labelDefault);
     }
-    
-    $( function(){
-    	$('#message-search').html( $('#searchmessage').html() );
-    });
-     
+	
 </script>
-
