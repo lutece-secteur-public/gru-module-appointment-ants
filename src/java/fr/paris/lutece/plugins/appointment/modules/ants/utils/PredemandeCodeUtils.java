@@ -64,7 +64,7 @@ public class PredemandeCodeUtils {
 	
 	public static String constructRedirectionUrl(HttpServletRequest request, List<String> predemandeCodeValueList,
 			String category, String categoryParams, String xPageName, String viewName, String idForm, String dateTime,
-			String dateTimeValue, String nbPlacesToTake,String nbPlacesToTakeValue, String applicationID, String anchor, String anchorValue) {
+			String dateTimeValue, String nbPlacesToTake,String nbPlacesToTakeValue, String anchor, String anchorValue) {
 
 		UrlItem url = new UrlItem("Portal.jsp");
 
@@ -81,12 +81,6 @@ public class PredemandeCodeUtils {
 		
 		if (StringUtils.isNoneBlank(nbPlacesToTake) && StringUtils.isNoneBlank(nbPlacesToTakeValue) ) {
 			url.addParameter(nbPlacesToTake, request.getParameter(nbPlacesToTakeValue));
-		}
-		
-		if (CollectionUtils.isNotEmpty(predemandeCodeValueList)) {
-			for (String codeValue : predemandeCodeValueList) {
-				url.addParameter(applicationID, codeValue);
-			}
 		}
 		
 		if (StringUtils.isNoneBlank(category) && StringUtils.isNoneBlank(categoryParams)) {
