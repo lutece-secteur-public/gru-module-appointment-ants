@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2022, City of Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,21 +32,24 @@
  * License 1.0
  */
 
-package fr.paris.lutece.plugins.appointment.modules.ants.utils;
+package fr.paris.lutece.plugins.appointment.modules.ants.service;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import java.util.ArrayList;
-import java.util.List;
+public class VerificationPredemandeCodePatternService {
 
-public class PredemandeCodeUtils {
-
-	public static List<String> getKeyPredemandeCodeList(String idSuffixPredemandeCode, int totalNumberPersons)
+    private static final String PROPERTY_PATTERN = "^([A-Z0-9]{10}[,;:\\-/.\\s])*[A-Z0-9]{10}$";
+	
+	public static boolean isMatchesPattern(String predemandeCodeList)
 	{
-		List<String> predemandeCodeKeyList = new ArrayList<>(); 
-		for (int i = 1; i <= totalNumberPersons; i++) {
-            String idOfInputKey = idSuffixPredemandeCode.concat(String.valueOf(i)); 
-            predemandeCodeKeyList.add(idOfInputKey);
+		String pattern = PROPERTY_PATTERN;
+	    Pattern regexPattern = Pattern.compile(pattern);
+	    Matcher matcher = regexPattern.matcher(predemandeCodeList);
+        if (!matcher.matches()) {
+            return false;
         }
-		return predemandeCodeKeyList;
+	    return true; 
 	}
+
 
 }
