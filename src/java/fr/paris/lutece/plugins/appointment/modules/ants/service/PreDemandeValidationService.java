@@ -50,16 +50,21 @@ import java.util.Iterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import fr.paris.lutece.util.url.UrlItem;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-
-public class PreDemandeValidationService {
+public class PreDemandeValidationService
+{
 
 	private static final String PROPERTY_ENDPOINT_STATUS = AppPropertiesService.getProperty("ants.api.opt.get.status");
 	private static final String PROPERTY_API_OPT_AUTH_TOKEN_KEY = AppPropertiesService.getProperty("ants.auth.token");
-	private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService
-			.getProperty("ants.api.opt.auth.token");
+	private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService.getProperty("ants.api.opt.auth.token");
+	private static final String PROPERTY_ID_APPLICATION_PARAMETER = AppPropertiesService.getProperty("ants.ids_application.parameters");
+
+	private PreDemandeValidationService()
+	{
+	}
 
 	public static boolean processPreDemandeCodes(List<String> codes) throws IOException {
 		String response = getPreDemandeStatusAndAppointments(codes);
@@ -101,24 +106,23 @@ public class PreDemandeValidationService {
 	}
 
 	private static String getPreDemandeStatusAndAppointments(List<String> codes) {
-		StringBuilder urlBuilder = new StringBuilder(PROPERTY_ENDPOINT_STATUS);
-
-		for (String code : codes) {
-			urlBuilder.append("application_ids=").append(code).append("&");
+		UrlItem urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS);
+		for (String code : codes)
+		{
+			urlItem.addParameter(PROPERTY_ID_APPLICATION_PARAMETER, code);
 		}
-
-		// Remove the trailing "&"
-		String endpointAPI = urlBuilder.toString();
-		endpointAPI = endpointAPI.substring(0, endpointAPI.length() - 1);
-
+		String strUrlItem = urlItem.toString();
 		HttpAccess httpAccess = new HttpAccess();
 
-		try {
+		try
+		{
 			Map<String, String> headers = new HashMap<>();
 			headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
-			return httpAccess.doGet(endpointAPI, null, null, headers);
-		} catch (HttpAccessException ex) {
-			AppLogService.error("Error calling API {}", endpointAPI, ex);
+			return httpAccess.doGet(strUrlItem, null, null, headers);
+		}
+		catch (HttpAccessException ex)
+		{
+			AppLogService.error("Error calling API {}", strUrlItem, ex);
 		}
 
 		return null;
