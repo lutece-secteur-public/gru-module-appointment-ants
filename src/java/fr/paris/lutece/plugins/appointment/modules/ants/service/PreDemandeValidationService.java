@@ -49,82 +49,82 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.commons.lang3.StringUtils;
+
+import fr.paris.lutece.util.url.UrlItem;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
-
-public class PreDemandeValidationService {
+public class PreDemandeValidationService
+{
 
 	private static final String PROPERTY_ENDPOINT_STATUS = AppPropertiesService.getProperty("ants.api.opt.get.status");
 	private static final String PROPERTY_API_OPT_AUTH_TOKEN_KEY = AppPropertiesService.getProperty("ants.auth.token");
 	private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService.getProperty("ants.api.opt.auth.token");
-	
-	
-	public static boolean processPreDemandeCodes(List<String> codes) throws IOException 
+	private static final String PROPERTY_ID_APPLICATION_PARAMETER = AppPropertiesService.getProperty("ants.ids_application.parameters");
+
+	private PreDemandeValidationService()
 	{
-		String response = getPreDemandeStatusAndAppointments(codes);
-			
-		if (StringUtils.isNotBlank(response))
-		{
-			Map<String, PredemandePOJO> responseAsMap = getStatusResponseAsMap(response);
-				
-			for (Map.Entry<String, PredemandePOJO> entry : responseAsMap.entrySet()) 
-			{ 
-		      PredemandePOJO predemande = entry.getValue();
-		           
-		      List<PredemandePOJO.Appointment> appointments = predemande.getAppointments();
-		            
-		      if (CollectionUtils.isNotEmpty(appointments) ||PreDemandeStatusEnum.validated.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus())))
-		      {
-		        return false;
-		      }   
-		    }
-	    }
-	  return true;
 	}
-	    
-	    public static Map<String, PredemandePOJO> getStatusResponseAsMap(String response) throws IOException {
-	        ObjectMapper mapper = new ObjectMapper();
-	        JsonNode jsonNode = mapper.readTree(response);
 
-	        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
-	        Map<String, PredemandePOJO> resultMap = new HashMap<>();
+	public static boolean processPreDemandeCodes(List<String> codes) throws IOException {
+		String response = getPreDemandeStatusAndAppointments(codes);
 
-	        while (fieldsIterator.hasNext()) {
-	            Map.Entry<String, JsonNode> entry = fieldsIterator.next();
-	            String fieldName = entry.getKey();
-	            JsonNode field = entry.getValue();
+		if (StringUtils.isNotBlank(response)) {
+			Map<String, PredemandePOJO> responseAsMap = getStatusResponseAsMap(response);
 
-	            PredemandePOJO predemande = mapper.readerFor(PredemandePOJO.class).readValue(field.toString());
-	            resultMap.put(fieldName, predemande);
-	        }
+			for (Map.Entry<String, PredemandePOJO> entry : responseAsMap.entrySet()) {
+				PredemandePOJO predemande = entry.getValue();
 
-	        return resultMap;
-	    }
+				List<PredemandePOJO.Appointment> appointments = predemande.getAppointments();
 
-	    private static String getPreDemandeStatusAndAppointments(List<String> codes) 
-	    {
-	        StringBuilder urlBuilder = new StringBuilder(PROPERTY_ENDPOINT_STATUS);
+				if (CollectionUtils.isNotEmpty(appointments) || !PreDemandeStatusEnum.validated
+						.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus()))) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
-	        for (String code : codes) {
-	            urlBuilder.append("application_ids=").append(code).append("&");
-	        }
+	public static Map<String, PredemandePOJO> getStatusResponseAsMap(String response) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = mapper.readTree(response);
 
-	        // Remove the trailing "&"
-	        String endpointAPI = urlBuilder.toString();
-	        endpointAPI = endpointAPI.substring(0, endpointAPI.length() - 1);
+		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
+		Map<String, PredemandePOJO> resultMap = new HashMap<>();
 
-	        HttpAccess httpAccess = new HttpAccess();
+		while (fieldsIterator.hasNext()) {
+			Map.Entry<String, JsonNode> entry = fieldsIterator.next();
+			String fieldName = entry.getKey();
+			JsonNode field = entry.getValue();
 
-	        try {
-	            Map<String, String> headers = new HashMap<>();
-	            headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
-	            return httpAccess.doGet(endpointAPI,null , null, headers);
-	        }
-	        catch (HttpAccessException ex) {
-	            AppLogService.error("Error calling API {}", endpointAPI, ex);
-	        }
+			PredemandePOJO predemande = mapper.readerFor(PredemandePOJO.class).readValue(field.toString());
+			resultMap.put(fieldName, predemande);
+		}
 
-	        return null;
-	    }
+		return resultMap;
+	}
+
+	private static String getPreDemandeStatusAndAppointments(List<String> codes) {
+		UrlItem urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS);
+		for (String code : codes)
+		{
+			urlItem.addParameter(PROPERTY_ID_APPLICATION_PARAMETER, code);
+		}
+		String strUrlItem = urlItem.toString();
+		HttpAccess httpAccess = new HttpAccess();
+
+		try
+		{
+			Map<String, String> headers = new HashMap<>();
+			headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
+			return httpAccess.doGet(strUrlItem, null, null, headers);
+		}
+		catch (HttpAccessException ex)
+		{
+			AppLogService.error("Error calling API {}", strUrlItem, ex);
+		}
+
+		return null;
+	}
 }
