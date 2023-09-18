@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -81,6 +82,7 @@ public class AppointmentAnts extends MVCApplication {
 	// PROPERTIES
 	private static final String PROPERTY_ID_PREDEMANDE_CODE_SUFFIX = "predemande_code_";
 	private static final String PROPERTY_ERROR_MESSAGE = "ants.display.fieldsErrorMessage";
+	private static final String PROPERTY_SESSION_ATTRIBUTE_NAME =AppPropertiesService.getProperty("ants.session.attribute.name");
 
 	// PARAMETERS
 	private static final String PARAMETER_CATEGORIE = "category";
@@ -90,7 +92,6 @@ public class AppointmentAnts extends MVCApplication {
 	private static final String PARAMETER_NB_CONSECUTIVE_SLOTS = "nb_consecutive_slots";
 	private static final String PARAMETER_PLACES_TAKED_NOMBER = "nbPlacesToTake";
 	private static final String PARAMETER_PLACES_TAKED_NOMBER_VALUE = "nbPlacesToTake";
-	private static final String PARAMETER_IDS_APPLICATION = "application_ids";
 	private static final String PARAMETER_ANCHOR = "anchor";
 	private static final String PARAMETER_ANCHOR_VALUE = "#step3";
 
@@ -127,16 +128,20 @@ public class AppointmentAnts extends MVCApplication {
 	 * @return The view
 	 */
 	@Action(value = ACTION_PRE_SEARCH)
-	public XPage presearch(HttpServletRequest request) throws IOException 
-	{
+	public XPage presearch(HttpServletRequest request) throws IOException {
 		Integer nbPlacesToTake = Integer.parseInt(request.getParameter(PARAMETER_PLACES_TAKED_NOMBER_VALUE));
 		String fieldsErrorMessage = AppPropertiesService.getProperty(PROPERTY_ERROR_MESSAGE);
 		String dateTime = request.getParameter(PARAMETER_DATE_TIME);
 
-		List<String> predemandeCodeValueList =  PredemandeCodeUtils.getPredemandeCodeList(request, PROPERTY_ID_PREDEMANDE_CODE_SUFFIX, nbPlacesToTake);
-		
+		List<String> predemandeCodeValueList = PredemandeCodeUtils.getPredemandeCodeList(request,
+				PROPERTY_ID_PREDEMANDE_CODE_SUFFIX, nbPlacesToTake);
+
 		XPage redirectionXpage = new XPage();
 		String url = null;
+
+		HttpSession session = request.getSession(true);
+		session.removeAttribute(PROPERTY_SESSION_ATTRIBUTE_NAME);
+		session.setAttribute(PROPERTY_SESSION_ATTRIBUTE_NAME, predemandeCodeValueList);
 
 		boolean isAllCodesNotValid = PreDemandeValidationService.processPreDemandeCodes(predemandeCodeValueList);
 
@@ -145,15 +150,13 @@ public class AppointmentAnts extends MVCApplication {
 				addError(fieldsErrorMessage);
 				url = PredemandeCodeUtils.constructRedirectionUrl(request, predemandeCodeValueList, null, null,
 						XPAGE_NAME, VIEW_PREDEMANDEFORM, PARAMETER_PROPERTY_ID_FORM, PARAMETER_DATE_TIME, dateTime,
-						PARAMETER_PLACES_TAKED_NOMBER, PARAMETER_PLACES_TAKED_NOMBER_VALUE, PARAMETER_IDS_APPLICATION,
-						null, null);
+						PARAMETER_PLACES_TAKED_NOMBER, PARAMETER_PLACES_TAKED_NOMBER_VALUE, null, null);
 				redirectionXpage = redirect(request, url);
 			} else {
 				url = PredemandeCodeUtils.constructRedirectionUrl(request, predemandeCodeValueList, null, null,
 						APPOINTMENT_PLUGIN_XPAGE_NAME, APPOINTMENT_PLUGIN_APPOINTMENTFORM_VIEW_NAME,
 						PARAMETER_PROPERTY_ID_FORM, PARAMETER_DATE_TIME, dateTime, PARAMETER_PLACES_TAKED_NOMBER,
-						PARAMETER_PLACES_TAKED_NOMBER_VALUE, PARAMETER_IDS_APPLICATION, PARAMETER_ANCHOR,
-						PARAMETER_ANCHOR_VALUE);
+						PARAMETER_PLACES_TAKED_NOMBER_VALUE, PARAMETER_ANCHOR, PARAMETER_ANCHOR_VALUE);
 				redirectionXpage = redirect(request, url);
 			}
 
@@ -165,7 +168,7 @@ public class AppointmentAnts extends MVCApplication {
 				url = PredemandeCodeUtils.constructRedirectionUrl(request, predemandeCodeValueList, PARAMETER_CATEGORIE,
 						PARAMETER_CATEGORIE_TITRES, APPOINTMENTSEARCH_PLUGIN_XPAGE_NAME,
 						APPOINTMENTSEARCH_PLUGIN_SEARCH_VIEW_NAME, null, null, null, PARAMETER_NB_CONSECUTIVE_SLOTS,
-						PARAMETER_PLACES_TAKED_NOMBER_VALUE, PARAMETER_IDS_APPLICATION, null, null);
+						PARAMETER_PLACES_TAKED_NOMBER_VALUE, null, null);
 				redirectionXpage = redirect(request, url);
 			}
 		}

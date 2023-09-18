@@ -93,7 +93,8 @@
 	const lastPartAntsPlatformLink = '">ants.gouv.fr</a>';
 	const predemandeInputHelpMassage ="#i18n{module.appointment.ants.predemandeserial.help}";
 	const erroMessage ="le nombre de personne selectionn� ne doit pas d�passer 6";
-	
+	const predemandeIds = []; // Array to store predemande IDs
+	       
 	function predemandeCodeInput(inputValue, inputContainer, labelDefault)
 	{
         // Clear existing inputs except the first one
@@ -137,6 +138,7 @@
         }
 
         inputContainer.appendChild(fragment);
+        
 	}
 	
 	function displayInputsFromAntsUrlParameterValue()
@@ -164,5 +166,5 @@
         
 		predemandeCodeInput(inputValue, inputContainer, labelDefault);
     }
-	
+    	
 </script>
