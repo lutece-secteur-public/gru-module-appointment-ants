@@ -36,7 +36,11 @@ package fr.paris.lutece.plugins.appointment.modules.ants.web;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
 
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
@@ -53,19 +57,35 @@ import fr.paris.lutece.plugins.appointment.modules.ants.utils.PredemandeCodeUtil
 @Controller( xpageName = "appointmentants", pageTitleI18nKey = "module.appointment.ants.pageTitle", pagePathI18nKey = "module.appointment.ants.pagePathLabel" )
 public class AppointmentAnts extends MVCApplication
 {
-    private static final String TEMPLATE_PREDEMANDEFORM = "skin/plugins/appointment/modules/ants/predemandeForm.html";
+    //TEMPLATES
+	private static final String TEMPLATE_PREDEMANDEFORM = "skin/plugins/appointment/modules/ants/predemandeForm.html";
+    
+    //VIEWS
     private static final String VIEW_PREDEMANDEFORM = "predemandeForm";
+    
+    //ACTIONS
     private static final String ACTION_PRE_SEARCH = "presearch";
-    private static final String PARAMETER_TOTAL_PERSONS_INPUT_VALUE = "totalPersonsInput";
+
+    //PROPERTIES
     private static final String PROPERTY_ID_PREDEMANDE_CODE_SUFFIX= "predemande_code_";
-    private static final String PARAMETER_NB_SLOTS = "nb_consecutive_slots";
-    private static final String PARAMETER_CATEGORIE = "category";
-    private static final String CATEGORIE_TITRES = "titres";
-    private static final String PARAMETER_ROLE = "role";
-    private static final String ROLE_NONE = "none";
-    private static final String EXCLUDE_ROLE = AppPropertiesService.getProperty( "appointment-ants.exclude.role", "none" );
     private static final String PROPERTY_ERROR_MESSAGE = "ants.display.fieldsErrorMessage";
 
+    
+    //PARAMETERS
+    private static final String PARAMETER_TOTAL_PERSONS_INPUT_VALUE = "totalPersonsInput";
+    private static final String PARAMETER_NB_SLOTS = "nb_consecutive_slots";
+    private static final String PARAMETER_CATEGORIE = "category";
+    private static final String PARAMETER_CATEGORIE_TITRES = "titres";
+    private static final String PARAMETER_DATE_TIME = "starting_date_time";
+    private static final String PARAMETER_PROPERTY_ID_FORM = "id_form";
+    private static final String PARAMETER_PLACES_TAKED_NOMBER= "nbPlacesToTake";
+    private static final String PARAMETER_IDS_APPLICATION = "application_ids";
+
+    //MARKERS
+	private static final String MARKER_STRATING_DATE_TIME = "starting_date_time";
+	private static final String MARKER_ID_FORM = "id_form";
+	private static final String MARKER_NB_PLACES_TO_TAKE = "nbPlacesToTake";
+    
     /**
      * Returns the content of the page preDemandeForm.
      *
@@ -77,7 +97,16 @@ public class AppointmentAnts extends MVCApplication
     @View( value = VIEW_PREDEMANDEFORM, defaultView = true )
     public XPage viewPreDemandeForm( HttpServletRequest request )
     {
-        return getXPage( TEMPLATE_PREDEMANDEFORM, request.getLocale( ));
+    	String dateTime = request.getParameter(PARAMETER_DATE_TIME);
+    	String idForm = request.getParameter(PARAMETER_PROPERTY_ID_FORM);
+    	String nbPlacesToTake = request.getParameter(MARKER_NB_PLACES_TO_TAKE);
+    	
+    	Map<String, Object> model = getModel( );
+    	model.put(MARKER_STRATING_DATE_TIME, dateTime);
+    	model.put(MARKER_ID_FORM, idForm);
+    	model.put(MARKER_NB_PLACES_TO_TAKE, nbPlacesToTake);
+    	 
+        return getXPage( TEMPLATE_PREDEMANDEFORM, request.getLocale( ), model);
     }
 
     /**
@@ -92,34 +121,62 @@ public class AppointmentAnts extends MVCApplication
     {
     	int nbSlots = Integer.parseInt(request.getParameter(PARAMETER_TOTAL_PERSONS_INPUT_VALUE));
     	String fieldsErrorMessage = AppPropertiesService.getProperty(PROPERTY_ERROR_MESSAGE);
-    	
-        List<String> predemandeCodeValueList = new ArrayList<>();
+    	String dateTime = request.getParameter(PARAMETER_DATE_TIME);
+    	    	
+    	List<String> predemandeCodeValueList = new ArrayList<>();
         List<String> predemandeCodeKeyList = PredemandeCodeUtils.getKeyPredemandeCodeList(PROPERTY_ID_PREDEMANDE_CODE_SUFFIX, nbSlots);
-
-    	for(String codeKey : predemandeCodeKeyList) {
+        
+        XPage redirectionXpage = new XPage();
+        
+    	for(String codeKey : predemandeCodeKeyList) 
+    	{
     		String predemandeCode = request.getParameter(codeKey);
     		predemandeCodeValueList.add(predemandeCode);
     	}
     	
         boolean isAllCodesNotValid =  PreDemandeValidationService.processPreDemandeCodes(predemandeCodeValueList);
-
-        String role = ROLE_NONE;
-
+           
         if(!isAllCodesNotValid)
         {
-            role = EXCLUDE_ROLE;
-            addError(fieldsErrorMessage);
-            redirectView(request, VIEW_PREDEMANDEFORM);
+           addError(fieldsErrorMessage);
+           redirectView(request, VIEW_PREDEMANDEFORM);
         }
-
-        UrlItem url = new UrlItem( "Portal.jsp" );
-        url.addParameter( MVCUtils.PARAMETER_PAGE, "appointmentsearch" );
-        url.addParameter( MVCUtils.PARAMETER_VIEW, "search" );
-        url.addParameter( PARAMETER_NB_SLOTS, nbSlots );
-        url.addParameter( PARAMETER_ROLE, role );
-        url.addParameter( PARAMETER_CATEGORIE, CATEGORIE_TITRES );
-
-        return redirect( request, url.getUrl( ) );
+        else
+        {
+	        UrlItem url = new UrlItem( "Portal.jsp" );
+	    	
+	        if(StringUtils.isNotBlank(dateTime)) 
+	    	{
+	        	url.addParameter( MVCUtils.PARAMETER_PAGE, "appointment" );
+	        	url.addParameter( MVCUtils.PARAMETER_VIEW, "getViewAppointmentForm" );
+	        	url.addParameter(PARAMETER_PROPERTY_ID_FORM,request.getParameter(PARAMETER_PROPERTY_ID_FORM));
+	        	url.addParameter(PARAMETER_DATE_TIME, dateTime);
+	        	url.addParameter(PARAMETER_PLACES_TAKED_NOMBER,request.getParameter(PARAMETER_PLACES_TAKED_NOMBER));
+	        	
+	        	for(String codeValue : predemandeCodeValueList) 
+	        	{
+	        		url.addParameter(PARAMETER_IDS_APPLICATION, codeValue);
+	        	}
+	       
+	        	redirectionXpage = redirect( request, url.getUrl( ) );
+	    	}
+	    	else
+	    	{
+	            url.addParameter( MVCUtils.PARAMETER_PAGE, "appointmentsearch" );
+	            url.addParameter( MVCUtils.PARAMETER_VIEW, "search" );
+	            url.addParameter( PARAMETER_NB_SLOTS, nbSlots );
+	            url.addParameter( PARAMETER_CATEGORIE, PARAMETER_CATEGORIE_TITRES );
+	            
+	            for(String codeValue : predemandeCodeValueList) 
+	        	{
+	        		url.addParameter(PARAMETER_IDS_APPLICATION, codeValue);
+	        	}
+	            
+	            redirectionXpage = redirect( request, url.getUrl( ) );
+	    	}
+        }
+    	
+        return redirectionXpage;
     }
     
 }
