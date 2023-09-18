@@ -38,14 +38,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.util.url.UrlItem;
 
 public class PredemandeCodeUtils {
+	
+	private static final String PROPERTY_SESSION_ATTRIBUTE_NAME =AppPropertiesService.getProperty("ants.session.attribute.name");
 
 	public static List<String> getPredemandeCodeList(HttpServletRequest request, String idSuffixPredemandeCode, int totalNumberPersons)
 	{
@@ -92,6 +95,20 @@ public class PredemandeCodeUtils {
 		}
 		return url.getUrl();
 
+	}
+	
+	public static void insertCodesPredemandeOnSession(HttpServletRequest request,
+			List<String> predemandeCodeValueList) 
+	{
+
+		String strPredemandeCodes = String.join(",", predemandeCodeValueList);
+		HttpSession session = request.getSession(true);
+		
+		if (StringUtils.isNotBlank(strPredemandeCodes)) 
+		{	
+			session.removeAttribute(PROPERTY_SESSION_ATTRIBUTE_NAME);
+			session.setAttribute(PROPERTY_SESSION_ATTRIBUTE_NAME, strPredemandeCodes);
+		}
 	}
 	
 }
