@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
 import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
 
@@ -172,5 +173,4 @@ public class AppointmentAnts extends MVCApplication {
 
 		return redirectionXpage;
 	}
-
 }

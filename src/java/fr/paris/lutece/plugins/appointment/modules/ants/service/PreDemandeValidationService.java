@@ -49,7 +49,6 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
-
 import fr.paris.lutece.util.url.UrlItem;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
