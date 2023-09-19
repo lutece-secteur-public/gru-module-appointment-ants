@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plug-in>
+    <name>appointment-ants</name>
+    <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
+    <version>1.0.0-SNAPSHOT</version>
+    <documentation/>
+    <installation/>
+    <changes/>
+    <user-guide/>
+    <description>module.appointment.ants.description</description>
+        <provider>module.appointment.ants.provider</provider>
+    <provider-url>http://dev.lutece.paris.fr</provider-url>
+    <icon-url>images/admin/skin/plugins/appointment/appointment.png</icon-url>
+    <copyright>Copyright (c) 2023 Mairie de Paris</copyright>
+
+    <applications>
+        <application>
+            <application-id>appointmentants</application-id>
+            <application-class>fr.paris.lutece.plugins.appointment.modules.ants.web.AppointmentAnts</application-class>
+        </application>
+    </applications>
+
+</plug-in>

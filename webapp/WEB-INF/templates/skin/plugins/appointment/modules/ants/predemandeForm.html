@@ -1,0 +1,172 @@
+<div class="row currentStepTitleRow">
+	<div class="col-xs-12">
+		<div class="container">
+			<h2 class="current stepTitle" id="step1">
+				<span class="current stepTitleNumber">1</span>
+				<span style="display:inline-block;overflow:hidden;width:80%;vertical-align:middle">
+                #i18n{module.appointment.ants.appointmenttitresearch.form.legend}
+                </span>
+			</h2>
+		</div>
+	</div>
+</div>
+
+<div class="row currentStepContentRow">
+	<div class="col-xs-12">
+		<div class="container" id="current_step">
+			<form method="post" class="form-horizontal"
+				  action="jsp/site/Portal.jsp?page=appointmentants&action=presearch">
+				<@messages errors=errors />
+				<input name="page" value="appointmentants" type="hidden">
+				<input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden">
+				<input name="id_form" id="id_form" value="${id_form!''}" type="hidden">
+
+				<div class="row">
+					<div class="col-xs-12 col-sm-6">
+						<div class="form-group" id="input-container">
+							<label class="nbPlacesToTake">
+								#i18n{module.appointment.ants.predemandenumber.label} </label>
+							<div class="col-xs-12 col-sm-8">
+								<input
+									type="number" class="form-control"
+									id="nbPlacesToTake" name="nbPlacesToTake"
+									min="1" max="6"
+									<#if nbPlacesToTake??>
+										value=${nbPlacesToTake!''}
+									<#else>
+										value="1"
+									</#if>
+									title=""
+									oninput="displayInputsFromAntsModuleEvent(event)"
+									onkeydown="event.preventDefault()" required
+								/>
+								<p class="help-text"><small>#i18n{module.appointment.ants.predemandenumber.help}</small> </p>
+							</div>
+						</div>
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-4 control-label"
+							   id="label-default">#i18n{module.appointment.ants.predemandeserial.label_default}
+						</label>
+						<div class="col-xs-12 col-sm-8">
+							<input type="text" class="form-control"
+								   name="predemande_code_1" id="predemande_code_1"
+								   pattern="[A-Z0-9]{10}" maxlength=10 required />
+							<p class="help-text">
+							<small>#i18n{module.appointment.ants.predemandeserial.help}
+								<a href="https://ants.gouv.fr/"> ants.gouv.fr</a>
+							</small>
+						<div id="warning-message" style="color: red;"></div>
+					</div>
+					</div>
+					<!-- This container will hold dynamically added inputs -->
+					<div class="form-group"><@button type="submit" class="btn
+						btn-primary" name="action_presearch" buttonIcon='check' /></div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+
+    const labels = [
+            "#i18n{module.appointment.ants.predemandeserial.label_default}",
+            "#i18n{module.appointment.ants.predemandeserial.label_1}",
+            "#i18n{module.appointment.ants.predemandeserial.label_2}",
+            "#i18n{module.appointment.ants.predemandeserial.label_3}",
+            "#i18n{module.appointment.ants.predemandeserial.label_4}",
+            "#i18n{module.appointment.ants.predemandeserial.label_5}",
+            "#i18n{module.appointment.ants.predemandeserial.label_6}"
+
+    ];
+
+    const inputElementType = "#i18n{module.appointment.ants.predemandeForm.inputElementType}";
+    const inputElementNameSuffix = "#i18n{module.appointment.ants.predemandeForm.inputElementNameSuffix}";
+    const inputElementPattern = "#i18n{module.appointment.ants.predemandeForm.inputElementPattern}";
+    const divTagName = "#i18n{module.appointment.ants.predemandeForm.divTagName}";
+    const labelTagName = "#i18n{module.appointment.ants.predemandeForm.labelTagName}";
+    const inputTagName = "#i18n{module.appointment.ants.predemandeForm.inputTagName}";
+    const spanTagName = "#i18n{module.appointment.ants.predemandeForm.spanTagName}";
+    const inputRowClassName = "#i18n{module.appointment.ants.predemandeForm.inputRowClassName}";
+    const inputWrapperClassName = "#i18n{module.appointment.ants.predemandeForm.inputWrapperClassName}";
+    const helptTextClassName = "#i18n{module.appointment.ants.predemandeForm.helptTextClassName}";
+    const antsLink = "#i18n{module.appointment.ants.predemandeForm.antsLink}";
+    const firstPartAntsPlatformLink = '#i18n{module.appointment.ants.predemandeForm.firstPartAntsPlatformLink}';
+    const lastPartAntsPlatformLink = '#i18n{module.appointment.ants.predemandeForm.lastPartAntsPlatformLink}';
+    const predemandeInputHelpMassage ="#i18n{module.appointment.ants.predemandeserial.help}";
+    const erroMessage ="#i18n{module.appointment.ants.predemandeForm.erroMessage}";
+    const predemandeIds = []; // Array to store predemande IDs
+
+    function predemandeCodeInput(inputValue, inputContainer, labelDefault)
+    {
+        // Clear existing inputs except the first one
+        while (inputContainer.childElementCount > 2) {
+            inputContainer.removeChild(inputContainer.lastChild);
+        }
+
+        // handle label-default
+        labelDefault.textContent = labels[inputValue > 1 ? 1 : 0];
+
+        // Create additional input elements based on the entered number
+        const fragment = document.createDocumentFragment();
+        for (let i = 2; i <= inputValue; i++) {
+            const inputRow = document.createElement(divTagName);
+            inputRow.classList.add(inputRowClassName);
+
+            const inputLabel = document.createElement(labelTagName);
+            inputLabel.textContent = labels[i];
+            inputRow.appendChild(inputLabel);
+
+            const inputWrapper = document.createElement(divTagName);
+            inputWrapper.classList.add(inputWrapperClassName);
+
+            const inputElement = document.createElement(inputTagName);
+            inputElement.type = inputElementType;
+            inputElement.name = inputElementNameSuffix.concat(i);
+            inputElement.id= inputElementNameSuffix.concat(i);
+            inputElement.pattern= inputElementPattern;
+
+            inputWrapper.appendChild(inputElement);
+
+            var linkToAntsPlateform = firstPartAntsPlatformLink.concat(antsLink).concat(lastPartAntsPlatformLink);
+
+            const helpText = document.createElement(spanTagName);
+            helpText.classList.add(helptTextClassName);
+            helpText.innerHTML = predemandeInputHelpMassage.concat(" ").concat(linkToAntsPlateform);
+            inputWrapper.appendChild(helpText);
+            inputRow.appendChild(inputWrapper);
+            fragment.appendChild(inputRow);
+        }
+
+        inputContainer.appendChild(fragment);
+
+    }
+
+    function displayInputsFromAntsUrlParameterValue()
+    {
+        const inputValue = document.getElementById('nbPlacesToTake').value;
+        const inputContainer = document.getElementById('input-container');
+        const labelDefault = document.getElementById('label-default');
+        if (inputValue <= 6)
+        {
+            predemandeCodeInput(inputValue, inputContainer, labelDefault);
+        }
+        else
+        {
+            alert(erroMessage);
+        }
+    }
+
+    displayInputsFromAntsUrlParameterValue();
+
+    function displayInputsFromAntsModuleEvent(event)
+    {
+        const inputValue = parseInt(event.target.value);
+        const inputContainer = document.getElementById('input-container');
+        const labelDefault = document.getElementById('label-default');
+
+        predemandeCodeInput(inputValue, inputContainer, labelDefault);
+    }
+
+</script>
