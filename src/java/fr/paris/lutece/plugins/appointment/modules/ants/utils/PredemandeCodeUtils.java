@@ -37,16 +37,78 @@ package fr.paris.lutece.plugins.appointment.modules.ants.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.StringUtils;
+
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
+import fr.paris.lutece.util.url.UrlItem;
+
 public class PredemandeCodeUtils {
+	
+	private static final String PROPERTY_SESSION_ATTRIBUTE_NAME =AppPropertiesService.getProperty("ants.session.attribute.name");
 
-	public static List<String> getKeyPredemandeCodeList(String idSuffixPredemandeCode, int totalNumberPersons)
+	public static List<String> getPredemandeCodeList(HttpServletRequest request, String idSuffixPredemandeCode, int totalNumberPersons)
 	{
-		List<String> predemandeCodeKeyList = new ArrayList<>(); 
+		List<String> predemandeCodeList = new ArrayList<>(); 
+		String inputIdValue = null;
+		String predemandeCode = null;
+		
 		for (int i = 1; i <= totalNumberPersons; i++) {
-            String idOfInputKey = idSuffixPredemandeCode.concat(String.valueOf(i)); 
-            predemandeCodeKeyList.add(idOfInputKey);
+			inputIdValue = idSuffixPredemandeCode.concat(String.valueOf(i)); 
+            predemandeCode = request.getParameter(inputIdValue);
+            predemandeCodeList.add(predemandeCode);
         }
-		return predemandeCodeKeyList;
+		
+		return predemandeCodeList;
 	}
+	
+	public static String constructRedirectionUrl(HttpServletRequest request, List<String> predemandeCodeValueList,
+			String category, String categoryParams, String xPageName, String viewName, String idForm, String dateTime,
+			String dateTimeValue, String nbPlacesToTake,String nbPlacesToTakeValue, String anchor, String anchorValue) {
 
+		UrlItem url = new UrlItem("Portal.jsp");
+
+		url.addParameter(MVCUtils.PARAMETER_PAGE, xPageName);
+		url.addParameter(MVCUtils.PARAMETER_VIEW, viewName);
+
+		if (StringUtils.isNoneBlank(idForm)) {
+			url.addParameter(idForm, request.getParameter(idForm));
+		}
+		
+		if (StringUtils.isNoneBlank(dateTime) && StringUtils.isNoneBlank(dateTimeValue)) {
+			url.addParameter(dateTime, dateTimeValue);
+		}
+		
+		if (StringUtils.isNoneBlank(nbPlacesToTake) && StringUtils.isNoneBlank(nbPlacesToTakeValue) ) {
+			url.addParameter(nbPlacesToTake, request.getParameter(nbPlacesToTakeValue));
+		}
+		
+		if (StringUtils.isNoneBlank(category) && StringUtils.isNoneBlank(categoryParams)) {
+			url.addParameter(category, categoryParams);
+		}
+		
+		if (StringUtils.isNoneBlank(anchor) && StringUtils.isNoneBlank(anchorValue)) {
+			url.addParameter(anchor, anchorValue);
+		}
+		return url.getUrl();
+
+	}
+	
+	public static void insertCodesPredemandeOnSession(HttpServletRequest request,
+			List<String> predemandeCodeValueList) 
+	{
+
+		String strPredemandeCodes = String.join(",", predemandeCodeValueList);
+		HttpSession session = request.getSession(true);
+		
+		if (StringUtils.isNotBlank(strPredemandeCodes)) 
+		{	
+			session.removeAttribute(PROPERTY_SESSION_ATTRIBUTE_NAME);
+			session.setAttribute(PROPERTY_SESSION_ATTRIBUTE_NAME, strPredemandeCodes);
+		}
+	}
+	
 }
