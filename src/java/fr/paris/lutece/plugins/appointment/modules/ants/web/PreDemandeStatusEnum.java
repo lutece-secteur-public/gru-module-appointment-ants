@@ -33,7 +33,7 @@
  */
 
 
-package fr.paris.lutece.plugins.appointment.modules.ants.pojo;
+package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
 public enum PreDemandeStatusEnum {
 	   

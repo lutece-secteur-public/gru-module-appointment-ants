@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2022, City of Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@ package fr.paris.lutece.plugins.appointment.modules.ants.service;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
 import fr.paris.lutece.util.httpaccess.HttpAccess;
-import fr.paris.lutece.plugins.appointment.modules.ants.pojo.PreDemandeStatusEnum;
-import fr.paris.lutece.plugins.appointment.modules.ants.pojo.PredemandePOJO;
+import fr.paris.lutece.plugins.appointment.modules.ants.web.PreDemandeStatusEnum;
+import fr.paris.lutece.plugins.appointment.modules.ants.web.PredemandeResponse;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.io.IOException;
@@ -54,6 +54,10 @@ import fr.paris.lutece.util.url.UrlItem;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+
+/**
+ * This class provides methods for processing and validating predemande codes.
+ */
 public class PreDemandeValidationService
 {
 
@@ -66,16 +70,25 @@ public class PreDemandeValidationService
 	{
 	}
 
+	/**
+	 * Processes a list of predemande codes to check their status and appointments.
+	 *
+	 * @param codes
+	 * 				The list of predemande codes to process.
+	 * @return
+	 * 				True if all predemande codes are validated and have appointments; otherwise, false.
+	 * @throws IOException If there is an error while processing the predemande codes.
+	 */
 	public static boolean processPreDemandeCodes(List<String> codes) throws IOException {
 		String response = getPreDemandeStatusAndAppointments(codes);
 
 		if (StringUtils.isNotBlank(response)) {
-			Map<String, PredemandePOJO> responseAsMap = getStatusResponseAsMap(response);
+			Map<String, PredemandeResponse> responseAsMap = getStatusResponseAsMap(response);
 
-			for (Map.Entry<String, PredemandePOJO> entry : responseAsMap.entrySet()) {
-				PredemandePOJO predemande = entry.getValue();
+			for (Map.Entry<String, PredemandeResponse> entry : responseAsMap.entrySet()) {
+				PredemandeResponse predemande = entry.getValue();
 
-				List<PredemandePOJO.Appointment> appointments = predemande.getAppointments();
+				List<PredemandeResponse.Appointment> appointments = predemande.getAppointments();
 
 				if (CollectionUtils.isNotEmpty(appointments) || !PreDemandeStatusEnum.validated
 						.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus()))) {
@@ -86,25 +99,42 @@ public class PreDemandeValidationService
 		return true;
 	}
 
-	public static Map<String, PredemandePOJO> getStatusResponseAsMap(String response) throws IOException {
+	/**
+	 * Converts the JSON response to a map of predemande status objects.
+	 *
+	 * @param response
+	 * 				The JSON response from the API.
+	 * @return
+	 * 				A map of predemande status objects.
+	 * @throws IOException If there is an error parsing the JSON response.
+	 */
+	public static Map<String, PredemandeResponse> getStatusResponseAsMap(String response) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(response);
 
 		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
-		Map<String, PredemandePOJO> resultMap = new HashMap<>();
+		Map<String, PredemandeResponse> resultMap = new HashMap<>();
 
 		while (fieldsIterator.hasNext()) {
 			Map.Entry<String, JsonNode> entry = fieldsIterator.next();
 			String fieldName = entry.getKey();
 			JsonNode field = entry.getValue();
 
-			PredemandePOJO predemande = mapper.readerFor(PredemandePOJO.class).readValue(field.toString());
+			PredemandeResponse predemande = mapper.readerFor(PredemandeResponse.class).readValue(field.toString());
 			resultMap.put(fieldName, predemande);
 		}
 
 		return resultMap;
 	}
 
+
+	/**
+	 * Retrieves the pre-demande status and appointments from the API.
+	 *
+	 * @param codes
+	 * 			The list of predemande codes to retrieve.
+	 * @return The JSON response from the API.
+	 */
 	private static String getPreDemandeStatusAndAppointments(List<String> codes) {
 		UrlItem urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS);
 		for (String code : codes)
