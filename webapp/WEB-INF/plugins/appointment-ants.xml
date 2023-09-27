@@ -16,7 +16,7 @@
     <applications>
         <application>
             <application-id>appointmentants</application-id>
-            <application-class>fr.paris.lutece.plugins.appointment.modules.ants.web.AppointmentAnts</application-class>
+            <application-class>fr.paris.lutece.plugins.appointment.modules.ants.web.AppointmentAntsApp</application-class>
         </application>
     </applications>
 

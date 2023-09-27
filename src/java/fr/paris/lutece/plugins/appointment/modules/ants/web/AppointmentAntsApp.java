@@ -38,10 +38,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import org.apache.commons.lang3.StringUtils;
 
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
@@ -50,8 +51,8 @@ import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
 import fr.paris.lutece.plugins.appointment.modules.ants.service.PreDemandeValidationService;
 import fr.paris.lutece.plugins.appointment.modules.ants.utils.PredemandeCodeUtils;
 
-@Controller(xpageName = AppointmentAnts.XPAGE_NAME, pageTitleI18nKey = "module.appointment.ants.pageTitle", pagePathI18nKey = "module.appointment.ants.pagePathLabel")
-public class AppointmentAnts extends MVCApplication {
+@Controller(xpageName = AppointmentAntsApp.XPAGE_NAME, pageTitleI18nKey = "module.appointment.ants.pageTitle", pagePathI18nKey = "module.appointment.ants.pagePathLabel")
+public class AppointmentAntsApp extends MVCApplication {
 	/**
 	 * The name of the XPage
 	 */
@@ -80,22 +81,21 @@ public class AppointmentAnts extends MVCApplication {
 
 	// PROPERTIES
 	private static final String PROPERTY_ID_PREDEMANDE_CODE_SUFFIX = "predemande_code_";
-	private static final String PROPERTY_ERROR_MESSAGE = "ants.display.fieldsErrorMessage";
+	private static final String PROPERTY_ERROR_MESSAGE = "module.appointment.ants.display.fieldsErrorMessage";
 
 
 	// PARAMETERS
 	private static final String PARAMETER_CATEGORIE = "category";
 	private static final String PARAMETER_CATEGORIE_TITRES = "titres";
 	private static final String PARAMETER_DATE_TIME = "starting_date_time";
-	private static final String PARAMETER_PROPERTY_ID_FORM = "id_form";
+	private static final String PARAMETER_ID_FORM = "id_form";
 	private static final String PARAMETER_NB_CONSECUTIVE_SLOTS = "nb_consecutive_slots";
-	private static final String PARAMETER_PLACES_TAKED_NOMBER = "nbPlacesToTake";
-	private static final String PARAMETER_PLACES_TAKED_NOMBER_VALUE = "nbPlacesToTake";
+	private static final String PARAMETER_NUMBER_OF_PLACES_TO_TAKE = "nbPlacesToTake";
 	private static final String PARAMETER_ANCHOR = "anchor";
-	private static final String PARAMETER_ANCHOR_VALUE = "#step3";
+	private static final String STEP_3= "#step3";
 
 	// MARKERS
-	private static final String MARKER_STRATING_DATE_TIME = "starting_date_time";
+	private static final String MARKER_STARTING_DATE_TIME = "starting_date_time";
 	private static final String MARKER_ID_FORM = "id_form";
 	private static final String MARKER_NB_PLACES_TO_TAKE = "nbPlacesToTake";
 
@@ -108,14 +108,22 @@ public class AppointmentAnts extends MVCApplication {
 	 */
 	@View(value = VIEW_PREDEMANDEFORM, defaultView = true)
 	public XPage viewPreDemandeForm(HttpServletRequest request) {
-		String dateTime = request.getParameter(PARAMETER_DATE_TIME);
-		String idForm = request.getParameter(PARAMETER_PROPERTY_ID_FORM);
-		String nbPlacesToTake = request.getParameter(PARAMETER_PLACES_TAKED_NOMBER_VALUE);
-
 		Map<String, Object> model = getModel();
-		model.put(MARKER_STRATING_DATE_TIME, dateTime);
-		model.put(MARKER_ID_FORM, idForm);
-		model.put(MARKER_NB_PLACES_TO_TAKE, nbPlacesToTake);
+
+		String dateTime = request.getParameter(PARAMETER_DATE_TIME);
+		String idForm = request.getParameter(PARAMETER_ID_FORM);
+		String nbPlacesToTake = request.getParameter(PARAMETER_NUMBER_OF_PLACES_TO_TAKE);
+		if (dateTime != null) {
+			model.put(MARKER_STARTING_DATE_TIME, dateTime);
+		}
+
+		if (idForm != null) {
+			model.put(MARKER_ID_FORM, idForm);
+		}
+
+		if (nbPlacesToTake != null) {
+			model.put(MARKER_NB_PLACES_TO_TAKE, nbPlacesToTake);
+		}
 
 		return getXPage(TEMPLATE_PREDEMANDEFORM, request.getLocale(), model);
 	}
@@ -128,44 +136,43 @@ public class AppointmentAnts extends MVCApplication {
 	 */
 	@Action(value = ACTION_PRE_SEARCH)
 	public XPage presearch(HttpServletRequest request) throws IOException {
-		Integer nbPlacesToTake = Integer.parseInt(request.getParameter(PARAMETER_PLACES_TAKED_NOMBER_VALUE));
-		String fieldsErrorMessage = AppPropertiesService.getProperty(PROPERTY_ERROR_MESSAGE);
+		Integer nbPlacesToTake = Integer.parseInt(request.getParameter(PARAMETER_NUMBER_OF_PLACES_TO_TAKE));
+		String fieldsErrorMessage = I18nService.getLocalizedString( PROPERTY_ERROR_MESSAGE, request.getLocale() );
 		String dateTime = request.getParameter(PARAMETER_DATE_TIME);
 
 		List<String> predemandeCodeList = PredemandeCodeUtils.getPredemandeCodeList(request,
 				PROPERTY_ID_PREDEMANDE_CODE_SUFFIX, nbPlacesToTake);
 
-		PredemandeCodeUtils.insertCodesPredemandeOnSession(request, predemandeCodeList);
+		HttpSession session = request.getSession( true );
+		PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, "," );
 
-		XPage redirectionXpage = new XPage();
-		String url = null;
-
-		boolean isAllCodesNotValid = PreDemandeValidationService.processPreDemandeCodes(predemandeCodeList);
+		XPage redirectionXpage;
+		String url;
+		boolean isAllCodesValid = PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments(predemandeCodeList);
 
 		if (StringUtils.isNotBlank(dateTime)) {
-			if (!isAllCodesNotValid) {
+			if (!isAllCodesValid) {
 				addError(fieldsErrorMessage);
-				url = PredemandeCodeUtils.constructRedirectionUrl(request, predemandeCodeList, null, null,
-						XPAGE_NAME, VIEW_PREDEMANDEFORM, PARAMETER_PROPERTY_ID_FORM, PARAMETER_DATE_TIME, dateTime,
-						PARAMETER_PLACES_TAKED_NOMBER, PARAMETER_PLACES_TAKED_NOMBER_VALUE, null, null);
-				redirectionXpage = redirect(request, url);
+				url = PredemandeCodeUtils.constructRedirectionUrl(request, null, null,
+						XPAGE_NAME, VIEW_PREDEMANDEFORM, PARAMETER_ID_FORM, PARAMETER_DATE_TIME, dateTime,
+						PARAMETER_NUMBER_OF_PLACES_TO_TAKE, String.valueOf(nbPlacesToTake), null, null);
 			} else {
-				url = PredemandeCodeUtils.constructRedirectionUrl(request, predemandeCodeList, null, null,
+				url = PredemandeCodeUtils.constructRedirectionUrl(request, null, null,
 						APPOINTMENT_PLUGIN_XPAGE_NAME, APPOINTMENT_PLUGIN_APPOINTMENTFORM_VIEW_NAME,
-						PARAMETER_PROPERTY_ID_FORM, PARAMETER_DATE_TIME, dateTime, PARAMETER_PLACES_TAKED_NOMBER,
-						PARAMETER_PLACES_TAKED_NOMBER_VALUE, PARAMETER_ANCHOR, PARAMETER_ANCHOR_VALUE);
-				redirectionXpage = redirect(request, url);
+						PARAMETER_ID_FORM, PARAMETER_DATE_TIME, dateTime, PARAMETER_NUMBER_OF_PLACES_TO_TAKE,
+						String.valueOf(nbPlacesToTake), PARAMETER_ANCHOR, STEP_3);
 			}
+			redirectionXpage = redirect(request, url);
 
 		} else {
-			if (!isAllCodesNotValid) {
+			if (!isAllCodesValid) {
 				addError(fieldsErrorMessage);
 				redirectionXpage = redirectView(request, VIEW_PREDEMANDEFORM);
 			} else {
-				url = PredemandeCodeUtils.constructRedirectionUrl(request, predemandeCodeList, PARAMETER_CATEGORIE,
+				url = PredemandeCodeUtils.constructRedirectionUrl(request, PARAMETER_CATEGORIE,
 						PARAMETER_CATEGORIE_TITRES, APPOINTMENTSEARCH_PLUGIN_XPAGE_NAME,
 						APPOINTMENTSEARCH_PLUGIN_SEARCH_VIEW_NAME, null, null, null, PARAMETER_NB_CONSECUTIVE_SLOTS,
-						PARAMETER_PLACES_TAKED_NOMBER_VALUE, null, null);
+						String.valueOf(nbPlacesToTake), null, null);
 				redirectionXpage = redirect(request, url);
 			}
 		}

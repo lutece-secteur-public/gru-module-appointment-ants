@@ -31,11 +31,7 @@
 									type="number" class="form-control"
 									id="nbPlacesToTake" name="nbPlacesToTake"
 									min="1" max="6"
-									<#if nbPlacesToTake??>
-										value=${nbPlacesToTake!''}
-									<#else>
-										value="1"
-									</#if>
+									value="${nbPlacesToTake?default(1)}"
 									title=""
 									oninput="displayInputsFromAntsModuleEvent(event)"
 									onkeydown="event.preventDefault()" required
