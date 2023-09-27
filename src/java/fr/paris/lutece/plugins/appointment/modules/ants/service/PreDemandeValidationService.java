@@ -34,6 +34,7 @@
 
 package fr.paris.lutece.plugins.appointment.modules.ants.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
 import fr.paris.lutece.util.httpaccess.HttpAccess;
@@ -42,17 +43,15 @@ import fr.paris.lutece.plugins.appointment.modules.ants.web.PredemandeResponse;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import fr.paris.lutece.util.url.UrlItem;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -79,54 +78,22 @@ public class PreDemandeValidationService
 	 * 				True if all predemande codes are validated and have appointments; otherwise, false.
 	 * @throws IOException If there is an error while processing the predemande codes.
 	 */
-	public static boolean processPreDemandeCodes(List<String> codes) throws IOException {
-		String response = getPreDemandeStatusAndAppointments(codes);
+	public static boolean checkPredemandeCodesValidationAndAppointments(List<String> codes) throws IOException {
+		Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments(codes);
 
-		if (StringUtils.isNotBlank(response)) {
-			Map<String, PredemandeResponse> responseAsMap = getStatusResponseAsMap(response);
+		for (Map.Entry<String, PredemandeResponse> entry : responseMap.entrySet()) {
+			PredemandeResponse predemande = entry.getValue();
 
-			for (Map.Entry<String, PredemandeResponse> entry : responseAsMap.entrySet()) {
-				PredemandeResponse predemande = entry.getValue();
+			List<PredemandeResponse.Appointment> appointments = predemande.getAppointments();
 
-				List<PredemandeResponse.Appointment> appointments = predemande.getAppointments();
-
-				if (CollectionUtils.isNotEmpty(appointments) || !PreDemandeStatusEnum.validated
-						.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus()))) {
-					return false;
-				}
+			if (CollectionUtils.isNotEmpty(appointments) || !PreDemandeStatusEnum.validated
+					.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus()))) {
+				return false;
 			}
 		}
+
 		return true;
 	}
-
-	/**
-	 * Converts the JSON response to a map of predemande status objects.
-	 *
-	 * @param response
-	 * 				The JSON response from the API.
-	 * @return
-	 * 				A map of predemande status objects.
-	 * @throws IOException If there is an error parsing the JSON response.
-	 */
-	public static Map<String, PredemandeResponse> getStatusResponseAsMap(String response) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonNode = mapper.readTree(response);
-
-		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
-		Map<String, PredemandeResponse> resultMap = new HashMap<>();
-
-		while (fieldsIterator.hasNext()) {
-			Map.Entry<String, JsonNode> entry = fieldsIterator.next();
-			String fieldName = entry.getKey();
-			JsonNode field = entry.getValue();
-
-			PredemandeResponse predemande = mapper.readerFor(PredemandeResponse.class).readValue(field.toString());
-			resultMap.put(fieldName, predemande);
-		}
-
-		return resultMap;
-	}
-
 
 	/**
 	 * Retrieves the pre-demande status and appointments from the API.
@@ -135,26 +102,29 @@ public class PreDemandeValidationService
 	 * 			The list of predemande codes to retrieve.
 	 * @return The JSON response from the API.
 	 */
-	private static String getPreDemandeStatusAndAppointments(List<String> codes) {
+	private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments(List<String> codes) {
 		UrlItem urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS);
-		for (String code : codes)
-		{
+		for (String code : codes) {
 			urlItem.addParameter(PROPERTY_ID_APPLICATION_PARAMETER, code);
 		}
 		String strUrlItem = urlItem.toString();
 		HttpAccess httpAccess = new HttpAccess();
 
-		try
-		{
+		try {
 			Map<String, String> headers = new HashMap<>();
 			headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
-			return httpAccess.doGet(strUrlItem, null, null, headers);
-		}
-		catch (HttpAccessException ex)
-		{
+			String jsonResponse = httpAccess.doGet(strUrlItem, null, null, headers);
+
+			ObjectMapper mapper = new ObjectMapper();
+			TypeReference<HashMap<String, PredemandeResponse>> typeRef =
+					new TypeReference<HashMap<String, PredemandeResponse>>() {
+					};
+
+			return mapper.readValue(jsonResponse, typeRef);
+		} catch (HttpAccessException | IOException ex) {
 			AppLogService.error("Error calling API {}", strUrlItem, ex);
 		}
 
-		return null;
+		return Collections.emptyMap();
 	}
 }
