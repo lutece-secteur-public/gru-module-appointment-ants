@@ -3,64 +3,46 @@
 		<div class="container">
 			<h2 class="current stepTitle" id="step1">
 				<span class="current stepTitleNumber">1</span>
-				<span style="display:inline-block;overflow:hidden;width:80%;vertical-align:middle">
-                #i18n{module.appointment.ants.appointmenttitresearch.form.legend}
-                </span>
+				<span style="display:inline-block;overflow:hidden;width:80%;vertical-align:middle">#i18n{module.appointment.ants.appointmenttitresearch.form.legend}</span>
 			</h2>
 		</div>
 	</div>
 </div>
-
-<div class="row currentStepContentRow">
-	<div class="col-xs-12">
-		<div class="container" id="current_step">
-			<form method="post" class="form-horizontal"
-				  action="jsp/site/Portal.jsp?page=appointmentants&action=presearch">
-				<@messages errors=errors />
-				<input name="page" value="appointmentants" type="hidden">
-				<input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden">
-				<input name="id_form" id="id_form" value="${id_form!''}" type="hidden">
-
-				<div class="row">
-					<div class="col-xs-12 col-sm-6">
-						<div class="form-group" id="input-container">
-							<label class="nbPlacesToTake">
-								#i18n{module.appointment.ants.predemandenumber.label} </label>
-							<div class="col-xs-12 col-sm-8">
-								<input
-									type="number" class="form-control"
-									id="nbPlacesToTake" name="nbPlacesToTake"
-									min="1" max="6"
-									value="${nbPlacesToTake?default(1)}"
-									title=""
-									oninput="displayInputsFromAntsModuleEvent(event)"
-									onkeydown="event.preventDefault()" required
-								/>
-								<p class="help-text"><small>#i18n{module.appointment.ants.predemandenumber.help}</small> </p>
-							</div>
-						</div>
-					<div class="form-group">
-						<label class="col-xs-12 col-sm-4 control-label"
-							   id="label-default">#i18n{module.appointment.ants.predemandeserial.label_default}
-						</label>
+<div class="currentStepContentRow">
+	<div class="container" id="current_step">
+		<form method="post" class="form" action="jsp/site/Portal.jsp?page=appointmentants&action=presearch">
+		<@messages errors=errors />
+		<input name="page" value="appointmentants" type="hidden">
+		<input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden">
+		<input name="id_form" id="id_form" value="${id_form!''}" type="hidden">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 formGroupContainer">
+					<div class="form-group" id="input-container">
+						<label class="col-xs-12 col-sm-4 control-label nbPlacesToTake">#i18n{module.appointment.ants.predemandenumber.label} </label>
 						<div class="col-xs-12 col-sm-8">
-							<input type="text" class="form-control"
-								   name="predemande_code_1" id="predemande_code_1"
-								   pattern="[A-Z0-9]{10}" maxlength=10 required />
+							<input type="number" class="form-control" id="nbPlacesToTake" name="nbPlacesToTake" min="1" max="6" value="${nbPlacesToTake?default(1)}" title="" oninput="displayInputsFromAntsModuleEvent(event)" onkeydown="event.preventDefault()" required style="width:20%;">
+							<p class=""><small>#i18n{module.appointment.ants.predemandenumber.help}</small> </p>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-4 control-label" id="label-default">#i18n{module.appointment.ants.predemandeserial.label_default}</label>
+						<div class="col-xs-12 col-sm-8">
+							<input type="text" class="form-control"  name="predemande_code_1" id="predemande_code_1" pattern="[A-Z0-9]{10}" maxlength=10 required />
 							<p class="help-text">
-							<small>#i18n{module.appointment.ants.predemandeserial.help}
-								<a href="https://ants.gouv.fr/"> ants.gouv.fr</a>
-							</small>
+							<small>#i18n{module.appointment.ants.predemandeserial.help} <a href="https://ants.gouv.fr/"> ants.gouv.fr</a> </small>
 						<div id="warning-message" style="color: red;"></div>
 					</div>
-					</div>
 					<!-- This container will hold dynamically added inputs -->
-					<div class="form-group"><@button type="submit" class="btn
-						btn-primary" name="action_presearch" buttonIcon='check' /></div>
+					<div class="form-group">
+						<div class="col-xs-12 col-sm-8 col-sm-offset-4">
+						<button class="btn btn-primary" type="submit" name="action_presearch">
+							<i class="fa fa-check me-1 " aria-hidden="true"></i> Valider
+						</button>
 					</div>
 				</div>
-			</form>
+			</div>
 		</div>
+		</form>
 	</div>
 </div>
 
