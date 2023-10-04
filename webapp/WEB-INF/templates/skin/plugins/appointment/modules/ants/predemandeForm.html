@@ -11,37 +11,37 @@
 <div class="currentStepContentRow">
 	<div class="container" id="current_step">
 		<form method="post" class="form" action="jsp/site/Portal.jsp?page=appointmentants&action=presearch">
-		<@messages errors=errors />
-		<input name="page" value="appointmentants" type="hidden">
-		<input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden">
-		<input name="id_form" id="id_form" value="${id_form!''}" type="hidden">
+			<@messages errors=errors />
+			<input name="page" value="appointmentants" type="hidden">
+			<input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden">
+			<input name="id_form" id="id_form" value="${id_form!''}" type="hidden">
 			<div class="row">
 				<div class="col-xs-12 col-sm-12 formGroupContainer">
-					<div class="form-group" id="input-container">
-						<label class="col-xs-12 col-sm-4 control-label nbPlacesToTake">#i18n{module.appointment.ants.predemandenumber.label} </label>
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-4 control-label">#i18n{module.appointment.ants.predemandenumber.label} </label>
 						<div class="col-xs-12 col-sm-8">
 							<input type="number" class="form-control" id="nbPlacesToTake" name="nbPlacesToTake" min="1" max="6" value="${nbPlacesToTake?default(1)}" title="" oninput="displayInputsFromAntsModuleEvent(event)" onkeydown="event.preventDefault()" required style="width:20%;">
 							<p class=""><small>#i18n{module.appointment.ants.predemandenumber.help}</small> </p>
 						</div>
 					</div>
-					<div class="form-group">
+					<div class="form-group"  id="input-container">
 						<label class="col-xs-12 col-sm-4 control-label" id="label-default">#i18n{module.appointment.ants.predemandeserial.label_default}</label>
 						<div class="col-xs-12 col-sm-8">
 							<input type="text" class="form-control"  name="predemande_code_1" id="predemande_code_1" pattern="[A-Z0-9]{10}" maxlength=10 required />
 							<p class="help-text">
-							<small>#i18n{module.appointment.ants.predemandeserial.help} <a href="https://ants.gouv.fr/"> ants.gouv.fr</a> </small>
-						<div id="warning-message" style="color: red;"></div>
+								<small>#i18n{module.appointment.ants.predemandeserial.help} <a href="https://ants.gouv.fr/"> ants.gouv.fr</a> </small>
+							<div id="warning-message" style="color: red;"></div>
+						</div>
+						<!-- This container will hold dynamically added inputs -->
 					</div>
-					<!-- This container will hold dynamically added inputs -->
 					<div class="form-group">
-						<div class="col-xs-12 col-sm-8 col-sm-offset-4">
-						<button class="btn btn-primary" type="submit" name="action_presearch">
-							<i class="fa fa-check me-1 " aria-hidden="true"></i> Valider
-						</button>
+						<div class="col-xs-12 col-sm-6 col-md-6 col-sm-offset-6 col-md-offset-6 text-right">
+							<button class="btn btn-primary" type="submit" name="action_presearch">
+								<i class="fa fa-check me-1 " aria-hidden="true"></i> Valider
+							</button>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
 		</form>
 	</div>
 </div>
@@ -64,9 +64,6 @@
     const divTagName = "#i18n{module.appointment.ants.predemandeForm.divTagName}";
     const labelTagName = "#i18n{module.appointment.ants.predemandeForm.labelTagName}";
     const inputTagName = "#i18n{module.appointment.ants.predemandeForm.inputTagName}";
-    const spanTagName = "#i18n{module.appointment.ants.predemandeForm.spanTagName}";
-    const inputRowClassName = "#i18n{module.appointment.ants.predemandeForm.inputRowClassName}";
-    const inputWrapperClassName = "#i18n{module.appointment.ants.predemandeForm.inputWrapperClassName}";
     const helptTextClassName = "#i18n{module.appointment.ants.predemandeForm.helptTextClassName}";
     const antsLink = "#i18n{module.appointment.ants.predemandeForm.antsLink}";
     const firstPartAntsPlatformLink = '#i18n{module.appointment.ants.predemandeForm.firstPartAntsPlatformLink}';
@@ -88,33 +85,38 @@
         // Create additional input elements based on the entered number
         const fragment = document.createDocumentFragment();
         for (let i = 2; i <= inputValue; i++) {
-            const inputRow = document.createElement(divTagName);
-            inputRow.classList.add(inputRowClassName);
 
             const inputLabel = document.createElement(labelTagName);
             inputLabel.textContent = labels[i];
-            inputRow.appendChild(inputLabel);
+            inputLabel.classList.add("col-xs-12");
+            inputLabel.classList.add("col-sm-4");
+            inputLabel.classList.add("control-label");
+
 
             const inputWrapper = document.createElement(divTagName);
-            inputWrapper.classList.add(inputWrapperClassName);
+            inputWrapper.classList.add("col-xs-12");
+            inputWrapper.classList.add("col-sm-8");
 
             const inputElement = document.createElement(inputTagName);
             inputElement.type = inputElementType;
             inputElement.name = inputElementNameSuffix.concat(i);
             inputElement.id= inputElementNameSuffix.concat(i);
             inputElement.pattern= inputElementPattern;
+            inputElement.classList.add("form-control");
 
             inputWrapper.appendChild(inputElement);
 
             var linkToAntsPlateform = firstPartAntsPlatformLink.concat(antsLink).concat(lastPartAntsPlatformLink);
 
-            const helpText = document.createElement(spanTagName);
+            const helpText = document.createElement("p");
             helpText.classList.add(helptTextClassName);
-            helpText.innerHTML = predemandeInputHelpMassage.concat(" ").concat(linkToAntsPlateform);
+            const helpTextSmall = document.createElement("small");
+            helpTextSmall.innerHTML = predemandeInputHelpMassage.concat(" ").concat(linkToAntsPlateform);
+            helpText.appendChild(helpTextSmall);
             inputWrapper.appendChild(helpText);
 
-            inputRow.appendChild(inputWrapper);
-            fragment.appendChild(inputRow);
+            fragment.appendChild(inputLabel);
+            fragment.appendChild(inputWrapper);
         }
 
         inputContainer.appendChild(fragment);
