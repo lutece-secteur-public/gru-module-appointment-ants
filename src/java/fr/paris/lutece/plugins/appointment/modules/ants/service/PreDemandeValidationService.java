@@ -81,13 +81,14 @@ public class PreDemandeValidationService
 	public static boolean checkPredemandeCodesValidationAndAppointments(List<String> codes) throws IOException {
 		Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments(codes);
 
-		for (Map.Entry<String, PredemandeResponse> entry : responseMap.entrySet()) {
-			PredemandeResponse predemande = entry.getValue();
+		if (responseMap.isEmpty()) {
+			return false;
+		}
 
+		for (PredemandeResponse predemande : responseMap.values()) {
 			List<PredemandeResponse.Appointment> appointments = predemande.getAppointments();
 
-			if (CollectionUtils.isNotEmpty(appointments) || !PreDemandeStatusEnum.validated
-					.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus()))) {
+			if (!appointments.isEmpty() || !PreDemandeStatusEnum.validated.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus()))) {
 				return false;
 			}
 		}
@@ -98,33 +99,29 @@ public class PreDemandeValidationService
 	/**
 	 * Retrieves the pre-demande status and appointments from the API.
 	 *
-	 * @param codes
-	 * 			The list of predemande codes to retrieve.
+	 * @param codes The list of predemande codes to retrieve.
 	 * @return The JSON response from the API.
+	 * @throws IOException If there is an error while processing the predemande codes.
 	 */
-	private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments(List<String> codes) {
+	private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments(List<String> codes) throws IOException {
 		UrlItem urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS);
 		for (String code : codes) {
 			urlItem.addParameter(PROPERTY_ID_APPLICATION_PARAMETER, code);
 		}
-		String strUrlItem = urlItem.toString();
+		String apiUrl = urlItem.toString();
 		HttpAccess httpAccess = new HttpAccess();
 
+		Map<String, String> headers = new HashMap<>();
+		headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
+
 		try {
-			Map<String, String> headers = new HashMap<>();
-			headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
-			String jsonResponse = httpAccess.doGet(strUrlItem, null, null, headers);
-
+			String jsonResponse = httpAccess.doGet(apiUrl, null, null, headers);
 			ObjectMapper mapper = new ObjectMapper();
-			TypeReference<HashMap<String, PredemandeResponse>> typeRef =
-					new TypeReference<HashMap<String, PredemandeResponse>>() {
-					};
-
+			TypeReference<HashMap<String, PredemandeResponse>> typeRef = new TypeReference<HashMap<String, PredemandeResponse>>() {};
 			return mapper.readValue(jsonResponse, typeRef);
 		} catch (HttpAccessException | IOException ex) {
-			AppLogService.error("Error calling API {}", strUrlItem, ex);
+			AppLogService.error("Error calling API {}", apiUrl, ex);
+			return Collections.emptyMap();
 		}
-
-		return Collections.emptyMap();
 	}
 }
