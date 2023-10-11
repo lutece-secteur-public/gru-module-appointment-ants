@@ -40,6 +40,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import fr.paris.lutece.plugins.appointment.modules.ants.common.RequestParameters;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,10 @@ import fr.paris.lutece.plugins.appointment.modules.ants.service.PreDemandeValida
 import fr.paris.lutece.plugins.appointment.modules.ants.utils.PredemandeCodeUtils;
 
 @Controller(xpageName = AppointmentAntsApp.XPAGE_NAME, pageTitleI18nKey = "module.appointment.ants.pageTitle", pagePathI18nKey = "module.appointment.ants.pagePathLabel")
-public class AppointmentAntsApp extends MVCApplication {
+public class AppointmentAntsApp extends MVCApplication
+{
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The name of the XPage
 	 */
@@ -109,24 +113,27 @@ public class AppointmentAntsApp extends MVCApplication {
 	 *
 	 * @param request The HTTP request
 	 * @return The view
-	 * @throws AccessDeniedException
 	 */
 	@View(value = VIEW_PREDEMANDEFORM, defaultView = true)
-	public XPage viewPreDemandeForm(HttpServletRequest request) {
+	public XPage viewPreDemandeForm(HttpServletRequest request)
+	{
 		Map<String, Object> model = getModel();
 
 		String dateTime = request.getParameter(PARAMETER_DATE_TIME);
 		String idForm = request.getParameter(PARAMETER_ID_FORM);
 		String nbPlacesToTake = request.getParameter(PARAMETER_NUMBER_OF_PLACES_TO_TAKE);
-		if (dateTime != null) {
+		if (dateTime != null)
+		{
 			model.put(MARKER_STARTING_DATE_TIME, dateTime);
 		}
 
-		if (idForm != null) {
+		if (idForm != null)
+		{
 			model.put(MARKER_ID_FORM, idForm);
 		}
 
-		if (nbPlacesToTake != null) {
+		if (nbPlacesToTake != null)
+		{
 			model.put(MARKER_NB_PLACES_TO_TAKE, nbPlacesToTake);
 		}
 
@@ -140,7 +147,8 @@ public class AppointmentAntsApp extends MVCApplication {
 	 * @return The view
 	 */
 	@Action(value = ACTION_PRE_SEARCH)
-	public XPage presearch(HttpServletRequest request) throws IOException {
+	public XPage presearch(HttpServletRequest request) throws IOException
+	{
 		Integer nbPlacesToTake = Integer.parseInt(request.getParameter(PARAMETER_NUMBER_OF_PLACES_TO_TAKE));
 		String fieldsErrorMessage = I18nService.getLocalizedString( PROPERTY_ERROR_MESSAGE, request.getLocale() );
 		String dateTime = request.getParameter(PARAMETER_DATE_TIME);
@@ -155,29 +163,43 @@ public class AppointmentAntsApp extends MVCApplication {
 		String url;
 		boolean isAllCodesValid = PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments(predemandeCodeList);
 
-		if (StringUtils.isNotBlank(dateTime)) {
-			if (!isAllCodesValid) {
+		RequestParameters params = new RequestParameters();
+		params.setNbPlacesToTakeValue(String.valueOf(nbPlacesToTake));
+
+		if (StringUtils.isNotBlank(dateTime))
+		{
+			params.setFormIdParameter(PARAMETER_ID_FORM);
+			params.setDateTimeParameter(PARAMETER_DATE_TIME);
+			params.setDateTimeValue(dateTime);
+			params.setNbPlacesToTakeParameter(PARAMETER_NUMBER_OF_PLACES_TO_TAKE);
+
+			if (!isAllCodesValid)
+			{
 				addError(fieldsErrorMessage);
-				url = PredemandeCodeUtils.constructRedirectionUrl(request, null, null,
-						XPAGE_NAME, VIEW_PREDEMANDEFORM, PARAMETER_ID_FORM, PARAMETER_DATE_TIME, dateTime,
-						PARAMETER_NUMBER_OF_PLACES_TO_TAKE, String.valueOf(nbPlacesToTake), null, null);
-			} else {
-				url = PredemandeCodeUtils.constructRedirectionUrl(request, null, null,
-						APPOINTMENT_PLUGIN_XPAGE_NAME, APPOINTMENT_PLUGIN_APPOINTMENTFORM_VIEW_NAME,
-						PARAMETER_ID_FORM, PARAMETER_DATE_TIME, dateTime, PARAMETER_NUMBER_OF_PLACES_TO_TAKE,
-						String.valueOf(nbPlacesToTake), PARAMETER_ANCHOR, STEP_3);
+				url = PredemandeCodeUtils.constructRedirectionUrl(request, XPAGE_NAME, VIEW_PREDEMANDEFORM, params);
+			}
+			else
+			{
+				params.setAnchorParameter(PARAMETER_ANCHOR);
+				params.setAnchorValue(STEP_3);
+				url = PredemandeCodeUtils.constructRedirectionUrl(request, APPOINTMENT_PLUGIN_XPAGE_NAME, APPOINTMENT_PLUGIN_APPOINTMENTFORM_VIEW_NAME, params);
 			}
 			redirectionXpage = redirect(request, url);
 
-		} else {
-			if (!isAllCodesValid) {
+		}
+		else
+		{
+			if (!isAllCodesValid)
+			{
 				addError(fieldsErrorMessage);
 				redirectionXpage = redirectView(request, VIEW_PREDEMANDEFORM);
-			} else {
-				url = PredemandeCodeUtils.constructRedirectionUrl(request, PARAMETER_CATEGORIE,
-						PARAMETER_CATEGORIE_TITRES, APPOINTMENTSEARCH_PLUGIN_XPAGE_NAME,
-						APPOINTMENTSEARCH_PLUGIN_SEARCH_VIEW_NAME, null, null, null, PARAMETER_NB_CONSECUTIVE_SLOTS,
-						String.valueOf(nbPlacesToTake), null, null);
+			}
+			else
+			{
+				params.setCategoryParameter(PARAMETER_CATEGORIE);
+				params.setCategoryValue(PARAMETER_CATEGORIE_TITRES);
+				params.setNbPlacesToTakeParameter(PARAMETER_NB_CONSECUTIVE_SLOTS);
+				url = PredemandeCodeUtils.constructRedirectionUrl(request, APPOINTMENTSEARCH_PLUGIN_XPAGE_NAME,	APPOINTMENTSEARCH_PLUGIN_SEARCH_VIEW_NAME, params);
 				redirectionXpage = redirect(request, url);
 			}
 		}
