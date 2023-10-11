@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import fr.paris.lutece.portal.service.i18n.I18nService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
 
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
@@ -99,6 +100,10 @@ public class AppointmentAntsApp extends MVCApplication {
 	private static final String MARKER_ID_FORM = "id_form";
 	private static final String MARKER_NB_PLACES_TO_TAKE = "nbPlacesToTake";
 
+
+	private static final String PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY = "ants.session.attribute.name";
+	private static final String CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME = AppPropertiesService.getProperty(PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY);
+
 	/**
 	 * Returns the content of the page preDemandeForm.
 	 *
@@ -144,7 +149,7 @@ public class AppointmentAntsApp extends MVCApplication {
 				PROPERTY_ID_PREDEMANDE_CODE_SUFFIX, nbPlacesToTake);
 
 		HttpSession session = request.getSession( true );
-		PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, "," );
+		PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, ",",CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
 
 		XPage redirectionXpage;
 		String url;

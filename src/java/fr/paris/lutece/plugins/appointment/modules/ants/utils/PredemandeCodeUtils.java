@@ -42,16 +42,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.util.url.UrlItem;
 
 public class PredemandeCodeUtils {
 
-	private static final String PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY = "ants.session.attribute.name";
-
-	private static final String CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME =
-			AppPropertiesService.getProperty( PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY );
 	/**
 	 * Get a List of all the predemande codes entered by the user
 	 *
@@ -165,16 +160,20 @@ public class PredemandeCodeUtils {
 	 * 				True when the predemande codes are properly added to the session, false otherwise
 	 */
 	public static boolean insertPredemandeCodesInSession( HttpSession session,
-														  List<String> predemandeCodeValueList, String codeValuesSeparator )
+														  List<String> predemandeCodeValueList, String codeValuesSeparator, String sessionAttributeName )
 	{
+		if (sessionAttributeName == null) {
+			return false;
+		}
+
 		String strPredemandeCodes = String.join( codeValuesSeparator, predemandeCodeValueList );
 
 		if ( StringUtils.isNotBlank( strPredemandeCodes ) )
 		{
-			session.setAttribute( CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME, strPredemandeCodes );
+			session.setAttribute( sessionAttributeName, strPredemandeCodes );
 			return true;
 		}
 		return false;
 	}
-	
+
 }
