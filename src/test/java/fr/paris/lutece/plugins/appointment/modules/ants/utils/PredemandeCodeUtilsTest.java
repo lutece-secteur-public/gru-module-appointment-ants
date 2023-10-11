@@ -17,7 +17,6 @@ public class PredemandeCodeUtilsTest extends LuteceTestCase {
     private MockHttpServletRequest request;
     private MockHttpSession session;
 
-    @Before
     public void setUp() {
         request = new MockHttpServletRequest();
         session = new MockHttpSession();
@@ -45,9 +44,7 @@ public class PredemandeCodeUtilsTest extends LuteceTestCase {
         predemandeCodeList.add("TEST000001");
         predemandeCodeList.add("TEST000002");
 
-        boolean result = PredemandeCodeUtils.insertPredemandeCodesInSession(session, predemandeCodeList, ",", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME);
-
-        assertTrue(result);
+        PredemandeCodeUtils.insertPredemandeCodesInSession(session, predemandeCodeList, ",", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME);
         assertEquals("TEST000001,TEST000002", session.getAttribute("APPOINTMENT_CODE_PREDEMANDE"));
     }
 

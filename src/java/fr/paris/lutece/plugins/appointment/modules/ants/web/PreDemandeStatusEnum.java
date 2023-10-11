@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2022, City of Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,16 +32,16 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
-public enum PreDemandeStatusEnum {
+public enum PreDemandeStatusEnum
+{
 	   
-	   brouillon,  // N/A
-	   consumed,   // « consumed »
-	   validated,  // « validated »
-	   declared,   // « declared »
-	   unknown,    // « unknown »
-	   expired,    // « expired »
-	   purge       // N/A
+	   DRAFT,  		// N/A
+	   CONSUMED,   // « consumed »
+	   VALIDATED,  // « validated »
+	   DECLARED,   // « declared »
+	   UNKNOWN,    // « unknown »
+	   EXPIRED,    // « expired »
+	   PURGE       // N/A
 }

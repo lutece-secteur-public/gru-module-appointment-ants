@@ -51,8 +51,6 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.paris.lutece.util.url.UrlItem;
-import org.apache.commons.collections.CollectionUtils;
-
 
 /**
  * This class provides methods for processing and validating predemande codes.
@@ -78,17 +76,21 @@ public class PreDemandeValidationService
 	 * 				True if all predemande codes are validated and have appointments; otherwise, false.
 	 * @throws IOException If there is an error while processing the predemande codes.
 	 */
-	public static boolean checkPredemandeCodesValidationAndAppointments(List<String> codes) throws IOException {
+	public static boolean checkPredemandeCodesValidationAndAppointments(List<String> codes) throws IOException
+	{
 		Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments(codes);
 
-		if (responseMap.isEmpty()) {
+		if (responseMap.isEmpty())
+		{
 			return false;
 		}
 
-		for (PredemandeResponse predemande : responseMap.values()) {
+		for (PredemandeResponse predemande : responseMap.values())
+		{
 			List<PredemandeResponse.Appointment> appointments = predemande.getAppointments();
 
-			if (!appointments.isEmpty() || !PreDemandeStatusEnum.validated.equals(PreDemandeStatusEnum.valueOf(predemande.getStatus()))) {
+			if (!appointments.isEmpty() || !PreDemandeStatusEnum.VALIDATED.name().equalsIgnoreCase(predemande.getStatus()))
+			{
 				return false;
 			}
 		}
@@ -103,9 +105,11 @@ public class PreDemandeValidationService
 	 * @return The JSON response from the API.
 	 * @throws IOException If there is an error while processing the predemande codes.
 	 */
-	private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments(List<String> codes) throws IOException {
+	private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments(List<String> codes) throws IOException
+	{
 		UrlItem urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS);
-		for (String code : codes) {
+		for (String code : codes)
+		{
 			urlItem.addParameter(PROPERTY_ID_APPLICATION_PARAMETER, code);
 		}
 		String apiUrl = urlItem.toString();
@@ -114,12 +118,16 @@ public class PreDemandeValidationService
 		Map<String, String> headers = new HashMap<>();
 		headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
 
-		try {
+		try
+		{
 			String jsonResponse = httpAccess.doGet(apiUrl, null, null, headers);
 			ObjectMapper mapper = new ObjectMapper();
-			TypeReference<HashMap<String, PredemandeResponse>> typeRef = new TypeReference<HashMap<String, PredemandeResponse>>() {};
+			TypeReference<HashMap<String, PredemandeResponse>> typeRef = new TypeReference<HashMap<String, PredemandeResponse>>()
+			{};
 			return mapper.readValue(jsonResponse, typeRef);
-		} catch (HttpAccessException | IOException ex) {
+		}
+		catch (HttpAccessException | IOException ex)
+		{
 			AppLogService.error("Error calling API {}", apiUrl, ex);
 			return Collections.emptyMap();
 		}

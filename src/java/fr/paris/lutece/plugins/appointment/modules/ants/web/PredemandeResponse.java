@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2022, City of Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
 
@@ -41,86 +40,89 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PredemandeResponse {
+public class PredemandeResponse
+{
 
 	@JsonProperty("status")
-	private String status;
+	private String _status;
 
 	@JsonProperty("appointments")
-	private List<Appointment> appointments;
+	private List<Appointment> _appointments;
 
 	// Getter & setters
 	public String getStatus()
 	{
-		return status;
+		return _status;
 	}
 
 	public void setStatus(String status) 
 	{
-		this.status = status;
+		this._status = status;
 	}
 
 	public List<Appointment> getAppointments() 
 	{
-		return appointments;
+		return _appointments;
 	}
 
 	public void setAppointments(List<Appointment> appointments) 
 	{
-		this.appointments = appointments;
+		this._appointments = appointments;
 	}
 
-	public static class Appointment {
+	public static class Appointment
+	{
 		@JsonProperty("management_url")
-		private String managementUrl;
+		private String _managementUrl;
 
 		@JsonProperty("meeting_point")
-		private String meetingPoint;
+		private String _meetingPoint;
 
 		@JsonProperty("appointment_date")
-		private String appointmentDate;
+		private String _appointmentDate;
 
 		@JsonProperty("editor_comment")
-		private String editorComment;
+		private String _editorComment;
 
 		// Getter & setters
 		public String getManagementUrl() 
 		{
-			return managementUrl;
+			return _managementUrl;
 		}
 
 		public String getMeetingPoint() 
 		{
-			return meetingPoint;
+			return _meetingPoint;
 		}
 
 		public String getAppointmentDate()
 		{
-			return appointmentDate;
+			return _appointmentDate;
 		}
 
-		public String getEditorComment() {
-			return editorComment;
+		public String getEditorComment()
+		{
+			return _editorComment;
 		}
 
 		public void setManagementUrl(String managementUrl) 
 		{
-			this.managementUrl = managementUrl;
+			this._managementUrl = managementUrl;
 		}
 
 		public void setMeetingPoint(String meetingPoint) 
 		{
-			this.meetingPoint = meetingPoint;
+			this._meetingPoint = meetingPoint;
 		}
 
 		public void setAppointmentDate(String appointmentDate)
 		{
-			this.appointmentDate = appointmentDate;
+			this._appointmentDate = appointmentDate;
 		}
 
 		public void setEditorComment(String editorComment)
 		{
-			this.editorComment = editorComment;
+			this._editorComment = editorComment;
 		}
 	}
 
