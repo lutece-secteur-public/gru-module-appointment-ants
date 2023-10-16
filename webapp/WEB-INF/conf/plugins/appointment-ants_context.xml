@@ -11,7 +11,9 @@
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context-3.0.xsd
            http://www.springframework.org/schema/tx
-           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
-">
+           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
 
+	<!-- Access Controllers -->	
+	<bean id="accesscontrol.slotsNumberAccessControllerConfigDAO" class="fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfigDAO" />
+	<bean id="accesscontrol.slotsNumberAccessControllerType" class="fr.paris.lutece.plugins.appointment.modules.ants.service.accesscontrol.SlotsNumberAccessControllerType" />
 </beans>
