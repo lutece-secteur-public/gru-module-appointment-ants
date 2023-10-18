@@ -107,12 +107,20 @@ public class PreDemandeValidationService
 	 */
 	private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments(List<String> codes) throws IOException
 	{
-		UrlItem urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS);
-		for (String code : codes)
+		UrlItem urlItem;
+		String apiUrl = null;
+
+		if (!codes.isEmpty())
 		{
-			urlItem.addParameter(PROPERTY_ID_APPLICATION_PARAMETER, code);
+			urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS + PROPERTY_ID_APPLICATION_PARAMETER + "=" + codes.get(0));
+			for (int i = 1; i < codes.size(); i++)
+			{
+				urlItem.addParameter(PROPERTY_ID_APPLICATION_PARAMETER, codes.get(i));
+			}
+
+			apiUrl = urlItem.toString();
 		}
-		String apiUrl = urlItem.toString();
+
 		HttpAccess httpAccess = new HttpAccess();
 
 		Map<String, String> headers = new HashMap<>();
