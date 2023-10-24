@@ -38,6 +38,7 @@
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-accesscontrol</artifactId>
             <version>[1.0.2-SNAPSHOT,)</version>
+            <type>lutece-plugin</type>
         </dependency>
     </dependencies>
 

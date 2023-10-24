@@ -33,17 +33,6 @@
  */
 package fr.paris.lutece.plugins.appointment.modules.ants.service.accesscontrol;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.lang3.StringUtils;
-
 import fr.paris.lutece.plugins.accesscontrol.business.AccessController;
 import fr.paris.lutece.plugins.accesscontrol.business.config.IAccessControllerConfigDAO;
 import fr.paris.lutece.plugins.accesscontrol.service.AbstractPersistentAccessControllerType;
@@ -55,6 +44,14 @@ import fr.paris.lutece.portal.business.accesscontrol.AccessControlSessionData;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 public class SlotsNumberAccessControllerType extends AbstractPersistentAccessControllerType<SlotsNumberAccessControllerConfig> implements IAccessControllerType
 {
     public static final String BEAN_NAME = "accesscontrol.slotsNumberAccessControllerType";
@@ -65,21 +62,23 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
 
     private static final String MARK_CONFIG = "config";
 
-    private static final String PARAMETER_SLOTS_NUMBER = "slots_number_id";
+    private static final String PARAMETER_SLOTS_NUMBER = "nbPlacesToTake";
     private static final String PARAMETER_COMMENT = "comment";
     private static final String PARAMETER_ERROR_MESSAGE = "error_message";
 
     @Inject
     @Named( SlotsNumberAccessControllerConfigDAO.BEAN_NAME )
     private IAccessControllerConfigDAO<SlotsNumberAccessControllerConfig> _dao;
-    
+
+    private int _nNbPlacesToTake = -1;
+
     /**
      * Get the template of the page used to configure an Access Controller
      */
     @Override
     public String getControllerConfigForm( HttpServletRequest request, Locale locale, AccessController controller )
     {
-    	SlotsNumberAccessControllerConfig config = _dao.load( controller.getId( ) );
+        SlotsNumberAccessControllerConfig config = _dao.load( controller.getId( ) );
         if ( config == null )
         {
             config = new SlotsNumberAccessControllerConfig( );
@@ -100,9 +99,8 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
     @Override
     public String getControllerForm( HttpServletRequest request, Locale locale, AccessController controller )
     {
-    	SlotsNumberAccessControllerConfig config = _dao.load( controller.getId( ) );
+        SlotsNumberAccessControllerConfig config = _dao.load( controller.getId( ) );
         Map<String, Object> model = new HashMap<>( );
-        //String nNbSlotsToTake = request.getParameter( PARAMETER_SLOTS_NUMBER );
         model.put( MARK_CONFIG, config );
 
         return AppTemplateService.getTemplate( TEMPLATE_CONTROLLER, locale, model ).getHtml( );
@@ -111,7 +109,7 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
     @Override
     public void saveControllerConfig( HttpServletRequest request, Locale locale, AccessController controller )
     {
-    	SlotsNumberAccessControllerConfig config = _dao.load( controller.getId( ) );
+        SlotsNumberAccessControllerConfig config = _dao.load( controller.getId( ) );
         config.setComment( request.getParameter( PARAMETER_COMMENT ) );
         config.setErrorMessage( request.getParameter( PARAMETER_ERROR_MESSAGE ) );
 
@@ -122,35 +120,34 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
     @Override
     public String validate( HttpServletRequest request, AccessController controller )
     {
-    	SlotsNumberAccessControllerConfig config = _dao.load( controller.getId( ) );
+        String strNbPlacesToTake = request.getParameter( PARAMETER_SLOTS_NUMBER );
 
-    	/* Value entered by the user in the Controller View */
-    	String slotsNumber = request.getParameter( PARAMETER_SLOTS_NUMBER );
+        if( strNbPlacesToTake != null ) {
+            _nNbPlacesToTake = Integer.parseInt( strNbPlacesToTake );
+        }
+        SlotsNumberAccessControllerConfig config = _dao.load(controller.getId());
 
-    	HttpSession session = request.getSession( );
+        if( _nNbPlacesToTake > -1 ) {
 
-    	if( session == null )
-    	{
-    		return null;
-    	}
+            /* Value entered by the user in the Controller View */
+            HttpSession session = request.getSession();
 
-    	//getDataFromSession( request, controller.getId( ), 1, "APPOINTMENT_FORM" );
+            if (session == null) {
+                return null;
+            }
 
-    	int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession( session, "," );
+            int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession(session, ",");
 
-    	if ( StringUtils.isEmpty( slotsNumber ) )
-    	{
-    		return config.getErrorMessage( );
-    	}
-
-    	int nbSlots = Integer.parseInt( slotsNumber );
-
-    	// If there are more slots taken than ANTS Application numbers
-    	if ( nbSlots > nbAntsApplications )
-    	{
-    		return config.getErrorMessage( );
-    	}
-    	return null;
+            // If there are more slots taken than ANTS Application numbers
+            if (_nNbPlacesToTake > nbAntsApplications) {
+                return config.getErrorMessage();
+            }
+        }
+        else
+        {
+            return config.getErrorMessage();
+        }
+        return null;
     }
 
     @Override
@@ -159,34 +156,19 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
         String nNbSlotsToTake = request.getParameter( PARAMETER_SLOTS_NUMBER );
         sessionData.addPersistentParam( idController, nNbSlotsToTake );
     }
-    
-    /*public Serializable getDataFromSession( HttpServletRequest request, int idController, int idResource, String resourceType )
-    {
-    	try {
-    	AccessControlSessionData sessionData =
-    			(AccessControlSessionData) request.getSession( ).getAttribute( AccessControlSessionData.getSessionKey( idResource, resourceType ) );
 
-    	Map<Integer, Serializable> sessionDataMap = sessionData.getPersistentData( );
-
-    	return sessionDataMap.get( idController );
-    	} catch( Exception e )
-    	{
-    		return null;
-    	}
-    }*/
-    
     @Override
     protected SlotsNumberAccessControllerConfig loadConfig( int idConfig )
     {
         return _dao.load( idConfig );
     }
-    
+
     @Override
     public void deleteConfig( int idController )
     {
         _dao.delete( idController );
     }
-    
+
     @Override
     public String getBeanName( )
     {

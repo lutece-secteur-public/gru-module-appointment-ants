@@ -56,7 +56,7 @@ public class AppointmentAntsApp extends MVCApplication {
 	/**
 	 * The name of the XPage
 	 */
-	protected static final String XPAGE_NAME = "appointmentants";
+	public static final String XPAGE_NAME = "appointmentants";
 
 	/**
 	 * The name of external XPages
@@ -74,7 +74,7 @@ public class AppointmentAntsApp extends MVCApplication {
 	private static final String TEMPLATE_PREDEMANDEFORM = "skin/plugins/appointment/modules/ants/predemandeForm.html";
 
 	// VIEWS
-	private static final String VIEW_PREDEMANDEFORM = "predemandeForm";
+	public static final String VIEW_PREDEMANDEFORM = "predemandeForm";
 
 	// ACTIONS
 	private static final String ACTION_PRE_SEARCH = "presearch";
