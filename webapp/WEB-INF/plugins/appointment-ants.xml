@@ -8,7 +8,7 @@
     <changes/>
     <user-guide/>
     <description>module.appointment.ants.description</description>
-        <provider>module.appointment.ants.provider</provider>
+    <provider>module.appointment.ants.provider</provider>
     <provider-url>http://dev.lutece.paris.fr</provider-url>
     <icon-url>images/admin/skin/plugins/appointment/appointment.png</icon-url>
     <copyright>Copyright (c) 2023 Mairie de Paris</copyright>

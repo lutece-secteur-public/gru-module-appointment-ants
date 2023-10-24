@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2022, City of Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.appointment.modules.ants.utils;
 
 import java.util.ArrayList;
@@ -40,18 +39,19 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import fr.paris.lutece.plugins.appointment.modules.ants.common.RequestParameters;
 import org.apache.commons.lang3.StringUtils;
 
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.util.url.UrlItem;
 
-public class PredemandeCodeUtils {
+public class PredemandeCodeUtils
+{
+	private PredemandeCodeUtils()
+	{
+		throw new IllegalStateException("Utility class");
+	}
 
-	private static final String PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY = "ants.session.attribute.name";
-
-	private static final String CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME =
-			AppPropertiesService.getProperty( PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY );
 	/**
 	 * Get a List of all the predemande codes entered by the user
 	 *
@@ -89,38 +89,16 @@ public class PredemandeCodeUtils {
 	 *
 	 * @param request
 	 * 				Current HTTP Request
-	 * @param strCategoryParameter
-	 * 				Name of the category parameter used in the URL
-	 * @param strCategoryValue
-	 * 				Value of the category of the current appointment's form
 	 * @param xPageName
 	 * 				Name of the XPage to display
 	 * @param viewName
 	 * 				Name of the view to display in the XPage
-	 * @param strFormIdParameter
-	 * 				Name of the ID form parameter used in the URL
-	 * @param strDateTimeParameter
-	 * 				Name of the date-time parameter used in the URL
-	 * @param strDateTimeValue
-	 * 				Value of the date-time of the appointment
-	 * @param strNbPlacesToTakeParameter
-	 * 				Name of the "number of spots to take" parameter used in the URL
-	 * @param strNbPlacesToTakeValue
-	 * 				Amount of people attending the appointment
-	 * @param anchorParameter
-	 * 				Name of the anchor parameter used in the URL to get to a specific step
-	 * @param anchorValue
-	 * 				Value of the step anchor
+	 * @param reqParams
+	 * 				request parameters used in the URL
 	 * @return
 	 * 				The redirection URL as a String
 	 */
-	public static String constructRedirectionUrl( HttpServletRequest request,
-												  String strCategoryParameter, String strCategoryValue,
-												  String xPageName, String viewName,
-												  String strFormIdParameter,
-												  String strDateTimeParameter, String strDateTimeValue,
-												  String strNbPlacesToTakeParameter,String strNbPlacesToTakeValue,
-												  String anchorParameter, String anchorValue )
+	public static String constructRedirectionUrl(HttpServletRequest request, String xPageName, String viewName, RequestParameters reqParams)
 	{
 
 		UrlItem url = new UrlItem("Portal.jsp");
@@ -128,24 +106,29 @@ public class PredemandeCodeUtils {
 		url.addParameter(MVCUtils.PARAMETER_PAGE, xPageName);
 		url.addParameter(MVCUtils.PARAMETER_VIEW, viewName);
 
-		if (StringUtils.isNoneBlank(strFormIdParameter)) {
-			url.addParameter(strFormIdParameter, request.getParameter(strFormIdParameter));
+		if (StringUtils.isNoneBlank(reqParams.getFormIdParameter()))
+		{
+			url.addParameter(reqParams.getFormIdParameter(), request.getParameter(reqParams.getFormIdParameter()));
 		}
 
-		if (StringUtils.isNoneBlank(strDateTimeParameter) && StringUtils.isNoneBlank(strDateTimeValue)) {
-			url.addParameter(strDateTimeParameter, strDateTimeValue);
+		if (StringUtils.isNoneBlank(reqParams.getDateTimeParameter()) && StringUtils.isNoneBlank(reqParams.getDateTimeValue()))
+		{
+			url.addParameter(reqParams.getDateTimeParameter(), reqParams.getDateTimeValue());
 		}
 
-		if (StringUtils.isNoneBlank(strNbPlacesToTakeParameter) && StringUtils.isNoneBlank(strNbPlacesToTakeValue) ) {
-			url.addParameter(strNbPlacesToTakeParameter, strNbPlacesToTakeValue);
+		if (StringUtils.isNoneBlank(reqParams.getNbPlacesToTakeParameter()) && StringUtils.isNoneBlank(reqParams.getNbPlacesToTakeValue()) )
+		{
+			url.addParameter(reqParams.getNbPlacesToTakeParameter(), reqParams.getNbPlacesToTakeValue());
 		}
 
-		if (StringUtils.isNoneBlank(strCategoryParameter) && StringUtils.isNoneBlank(strCategoryValue)) {
-			url.addParameter(strCategoryParameter, strCategoryValue);
+		if (StringUtils.isNoneBlank(reqParams.getCategoryParameter()) && StringUtils.isNoneBlank(reqParams.getCategoryValue()))
+		{
+			url.addParameter(reqParams.getCategoryParameter(), reqParams.getCategoryValue());
 		}
 
-		if (StringUtils.isNoneBlank(anchorParameter) && StringUtils.isNoneBlank(anchorValue)) {
-			url.addParameter(anchorParameter, anchorValue);
+		if (StringUtils.isNoneBlank(reqParams.getAnchorParameter()) && StringUtils.isNoneBlank(reqParams.getAnchorValue()))
+		{
+			url.addParameter(reqParams.getAnchorParameter(), reqParams.getAnchorValue());
 		}
 		return url.getUrl();
 	}
@@ -155,26 +138,24 @@ public class PredemandeCodeUtils {
 	 * Add the predemande codes in a session's attributes. The codes will be put together as a single String,
 	 * where their values are separated by a specific symbol.
 	 *
-	 * @param session
-	 * 				HttpSession where the codes will be added
-	 * @param predemandeCodeValueList
-	 * 				List of all the predemande codes
-	 * @param codeValuesSeparator
-	 * 				String used to separate each code value
-	 * @return
-	 * 				True when the predemande codes are properly added to the session, false otherwise
+	 * @param session                 HttpSession where the codes will be added
+	 * @param predemandeCodeValueList List of all the predemande codes
+	 * @param codeValuesSeparator     String used to separate each code value
 	 */
-	public static boolean insertPredemandeCodesInSession( HttpSession session,
-														  List<String> predemandeCodeValueList, String codeValuesSeparator )
+	public static void insertPredemandeCodesInSession(HttpSession session,
+													  List<String> predemandeCodeValueList, String codeValuesSeparator, String sessionAttributeName )
 	{
+		if (sessionAttributeName == null)
+		{
+			return;
+		}
+
 		String strPredemandeCodes = String.join( codeValuesSeparator, predemandeCodeValueList );
 
 		if ( StringUtils.isNotBlank( strPredemandeCodes ) )
 		{
-			session.setAttribute( CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME, strPredemandeCodes );
-			return true;
+			session.setAttribute( sessionAttributeName, strPredemandeCodes );
 		}
-		return false;
 	}
 	
 	/**
@@ -193,4 +174,5 @@ public class PredemandeCodeUtils {
 		
 		return predemandeCodesList.length;
 	}
+
 }
