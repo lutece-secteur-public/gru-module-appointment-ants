@@ -157,5 +157,22 @@ public class PredemandeCodeUtils
 			session.setAttribute( sessionAttributeName, strPredemandeCodes );
 		}
 	}
+	
+	/**
+	 * Get the total amount of predemande codes entered by the user
+	 * @param session
+	 * 				HttpSession where the codes are saved
+	 * @param codeValuesSeparator
+	 * 				String used to separate each code value
+	 * @return
+	 * 				The amount of predemande codes
+	 */
+	public static int getAmountPredemandeCodesInSession( HttpSession session, String codeValuesSeparator )
+	{
+		String predemandeCodesAsString = ( String ) session.getAttribute( CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
+		String[] predemandeCodesList = predemandeCodesAsString.split( codeValuesSeparator );
+		
+		return predemandeCodesList.length;
+	}
 
 }
