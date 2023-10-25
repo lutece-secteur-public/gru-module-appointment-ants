@@ -3,7 +3,8 @@
 		<div class="container">
 			<h2 class="current stepTitle" id="step1">
 				<span class="current stepTitleNumber">1</span>
-				<span style="display:inline-block;overflow:hidden;width:80%;vertical-align:middle">#i18n{module.appointment.ants.appointmenttitresearch.form.legend}</span>
+				<span
+						style="display:inline-block;overflow:hidden;width:80%;vertical-align:middle">#i18n{module.appointment.ants.appointmenttitresearch.form.legend}</span>
 			</h2>
 		</div>
 	</div>
@@ -37,7 +38,9 @@
 									   id="label-default">#i18n{module.appointment.ants.predemandeserial.label_default}</label>
 								<div class="col-xs-12 col-sm-8">
 									<input type="text" class="form-control" name="predemande_code_1"
-										   id="predemande_code_1" pattern="[A-Z0-9]{10}" maxlength=10 required />
+										   id="predemande_code_1" pattern="[A-Z0-9]{10}" maxlength=10 required
+										   oninvalid="setCustomValidityMessage(id)"
+										   oninput="setCustomValidity('')"/>
 									<p class="help-text">
 										<small>#i18n{module.appointment.ants.predemandeserial.help} <a
 												href="https://ants.gouv.fr/"> ants.gouv.fr</a> </small>
@@ -87,6 +90,15 @@
     const lastPartAntsPlatformLink = '#i18n{module.appointment.ants.predemandeForm.lastPartAntsPlatformLink}';
     const predemandeInputHelpMassage = "#i18n{module.appointment.ants.predemandeserial.help}";
     const erroMessage = "#i18n{module.appointment.ants.predemandeForm.erroMessage}";
+    const customValidityMessage = "#i18n{module.appointment.ants.predemandeForm.customValidityMessage}";
+
+    function setCustomValidityMessage(idN) {
+        var inputElement = document.getElementById(idN);
+
+        if (inputElement) {
+            inputElement.setCustomValidity(customValidityMessage);
+        }
+    }
 
     function predemandeCodeInput(inputValue, inputContainer, labelDefault) {
 
@@ -124,6 +136,7 @@
             inputElement.name = inputElementNameSuffix.concat(i);
             inputElement.id = inputElementNameSuffix.concat(i);
             inputElement.pattern = inputElementPattern;
+            inputElement.maxLength=10;
             inputElement.required = true;
 
             inputWrapper.appendChild(inputElement);
@@ -141,6 +154,14 @@
             formGroupDiv.appendChild(inputWrapper);
 
             fragment.appendChild(formGroupDiv);
+
+            inputElement.oninvalid = function() {
+                setCustomValidityMessage(inputElement.id);
+            };
+
+            inputElement.oninput = function() {
+                inputElement.setCustomValidity('');
+            };
         }
 
         inputContainer.parentNode.insertBefore(fragment, inputContainer.nextSibling);
