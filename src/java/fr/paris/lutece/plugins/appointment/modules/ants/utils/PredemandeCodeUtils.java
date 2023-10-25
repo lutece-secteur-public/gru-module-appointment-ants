@@ -42,11 +42,16 @@ import javax.servlet.http.HttpSession;
 import fr.paris.lutece.plugins.appointment.modules.ants.common.RequestParameters;
 import org.apache.commons.lang3.StringUtils;
 
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.util.url.UrlItem;
 
 public class PredemandeCodeUtils
 {
+	private static final String PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY = "ants.session.attribute.name";
+
+	private static final String CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME =
+			AppPropertiesService.getProperty( PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY );
 	private PredemandeCodeUtils()
 	{
 		throw new IllegalStateException("Utility class");

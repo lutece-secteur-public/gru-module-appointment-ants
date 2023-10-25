@@ -16,5 +16,5 @@
 	<!-- Access Controllers -->	
 	<bean id="accesscontrol.slotsNumberAccessControllerConfigDAO" class="fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfigDAO" />
 	<bean id="accesscontrol.slotsNumberAccessControllerType" class="fr.paris.lutece.plugins.appointment.modules.ants.service.accesscontrol.SlotsNumberAccessControllerType" />
-	<bean id="accesscontrol.accessControlServiceProvider" class="fr.paris.lutece.plugins.appointment.modules.ants.service.accesscontrol.AntsAccessControlServiceProvider" />
+	<!--<bean id="accesscontrol.accessControlServiceProvider" class="fr.paris.lutece.plugins.appointment.modules.ants.service.accesscontrol.AntsAccessControlServiceProvider" />-->
 </beans>
