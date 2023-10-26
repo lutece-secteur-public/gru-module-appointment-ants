@@ -37,9 +37,11 @@ import fr.paris.lutece.plugins.accesscontrol.business.AccessController;
 import fr.paris.lutece.plugins.accesscontrol.business.config.IAccessControllerConfigDAO;
 import fr.paris.lutece.plugins.accesscontrol.service.AbstractPersistentAccessControllerType;
 import fr.paris.lutece.plugins.accesscontrol.service.IAccessControllerType;
+import fr.paris.lutece.plugins.appointment.business.appointment.Appointment;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfig;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfigDAO;
 import fr.paris.lutece.plugins.appointment.modules.ants.utils.PredemandeCodeUtils;
+import fr.paris.lutece.plugins.appointment.service.AppointmentService;
 import fr.paris.lutece.portal.business.accesscontrol.AccessControlSessionData;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
@@ -63,6 +65,7 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
     private static final String MARK_CONFIG = "config";
 
     private static final String PARAMETER_SLOTS_NUMBER = "nbPlacesToTake";
+    private static final String PARAMETER_REF_APPOINTMENT = "refAppointment";
     private static final String PARAMETER_COMMENT = "comment";
     private static final String PARAMETER_ERROR_MESSAGE = "error_message";
 
@@ -120,12 +123,26 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
     @Override
     public String validate( HttpServletRequest request, AccessController controller )
     {
+        SlotsNumberAccessControllerConfig config = _dao.load(controller.getId());
+        String strRefAppointment = request.getParameter( PARAMETER_REF_APPOINTMENT );
+
+        if( strRefAppointment != null )
+        {
+            Appointment appointment = AppointmentService.findAppointmentByReference( strRefAppointment );
+
+            if ( appointment == null )
+            {
+                return config.getErrorMessage();
+            }
+
+            return null;
+        }
+
         String strNbPlacesToTake = request.getParameter( PARAMETER_SLOTS_NUMBER );
 
         if( strNbPlacesToTake != null ) {
             _nNbPlacesToTake = Integer.parseInt( strNbPlacesToTake );
         }
-        SlotsNumberAccessControllerConfig config = _dao.load(controller.getId());
 
         if( _nNbPlacesToTake > -1 ) {
 
