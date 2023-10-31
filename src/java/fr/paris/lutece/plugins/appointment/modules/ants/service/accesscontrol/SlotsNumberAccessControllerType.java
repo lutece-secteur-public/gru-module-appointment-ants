@@ -142,6 +142,10 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
 
         if( strNbPlacesToTake != null ) {
             _nNbPlacesToTake = Integer.parseInt( strNbPlacesToTake );
+            /* mono slot appointment case */
+            if( _nNbPlacesToTake == 0 ) {
+                _nNbPlacesToTake = 1;
+            }
         }
 
         if( _nNbPlacesToTake > -1 ) {
@@ -156,7 +160,7 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
             int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession(session, ",");
 
             // If there are more slots taken than ANTS Application numbers
-            if (_nNbPlacesToTake > nbAntsApplications) {
+            if (_nNbPlacesToTake != nbAntsApplications) {
                 return config.getErrorMessage();
             }
         }
