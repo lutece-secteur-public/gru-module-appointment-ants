@@ -174,10 +174,14 @@ public class PredemandeCodeUtils
 	 */
 	public static int getAmountPredemandeCodesInSession( HttpSession session, String codeValuesSeparator )
 	{
+		int nbTotalPredemande = 0;
 		String predemandeCodesAsString = ( String ) session.getAttribute( CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
-		String[] predemandeCodesList = predemandeCodesAsString.split( codeValuesSeparator );
-		
-		return predemandeCodesList.length;
+		if ( StringUtils.isNotBlank ( predemandeCodesAsString ) )
+		{
+			nbTotalPredemande = predemandeCodesAsString.split( codeValuesSeparator ).length;
+		}
+
+		return nbTotalPredemande;
 	}
 
 }
