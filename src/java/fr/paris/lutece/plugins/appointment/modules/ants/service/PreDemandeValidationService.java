@@ -58,86 +58,89 @@ import fr.paris.lutece.util.url.UrlItem;
 public class PreDemandeValidationService
 {
 
-	private static final String PROPERTY_ENDPOINT_STATUS = AppPropertiesService.getProperty("ants.api.opt.get.status");
-	private static final String PROPERTY_API_OPT_AUTH_TOKEN_KEY = AppPropertiesService.getProperty("ants.auth.token");
-	private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService.getProperty("ants.api.opt.auth.token");
-	private static final String PROPERTY_ID_APPLICATION_PARAMETER = AppPropertiesService.getProperty("ants.ids_application.parameters");
+    private static final String PROPERTY_ENDPOINT_STATUS = AppPropertiesService.getProperty( "ants.api.opt.get.status" );
+    private static final String PROPERTY_API_OPT_AUTH_TOKEN_KEY = AppPropertiesService.getProperty( "ants.auth.token" );
+    private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService.getProperty( "ants.api.opt.auth.token" );
+    private static final String PROPERTY_ID_APPLICATION_PARAMETER = AppPropertiesService.getProperty( "ants.ids_application.parameters" );
 
-	private PreDemandeValidationService()
-	{
-	}
+    private PreDemandeValidationService( )
+    {
+    }
 
-	/**
-	 * Processes a list of predemande codes to check their status and appointments.
-	 *
-	 * @param codes
-	 * 				The list of predemande codes to process.
-	 * @return
-	 * 				True if all predemande codes are validated and have appointments; otherwise, false.
-	 * @throws IOException If there is an error while processing the predemande codes.
-	 */
-	public static boolean checkPredemandeCodesValidationAndAppointments(List<String> codes) throws IOException
-	{
-		Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments(codes);
+    /**
+     * Processes a list of predemande codes to check their status and appointments.
+     *
+     * @param codes
+     *            The list of predemande codes to process.
+     * @return True if all predemande codes are validated and have appointments; otherwise, false.
+     * @throws IOException
+     *             If there is an error while processing the predemande codes.
+     */
+    public static boolean checkPredemandeCodesValidationAndAppointments( List<String> codes ) throws IOException
+    {
+        Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments( codes );
 
-		if (responseMap.isEmpty())
-		{
-			return false;
-		}
+        if ( responseMap.isEmpty( ) )
+        {
+            return false;
+        }
 
-		for (PredemandeResponse predemande : responseMap.values())
-		{
-			List<PredemandeResponse.Appointment> appointments = predemande.getAppointments();
+        for ( PredemandeResponse predemande : responseMap.values( ) )
+        {
+            List<PredemandeResponse.Appointment> appointments = predemande.getAppointments( );
 
-			if (!appointments.isEmpty() || !PreDemandeStatusEnum.VALIDATED.name().equalsIgnoreCase(predemande.getStatus()))
-			{
-				return false;
-			}
-		}
+            if ( !appointments.isEmpty( ) || !PreDemandeStatusEnum.VALIDATED.name( ).equalsIgnoreCase( predemande.getStatus( ) ) )
+            {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * Retrieves the pre-demande status and appointments from the API.
-	 *
-	 * @param codes The list of predemande codes to retrieve.
-	 * @return The JSON response from the API.
-	 * @throws IOException If there is an error while processing the predemande codes.
-	 */
-	private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments(List<String> codes) throws IOException
-	{
-		UrlItem urlItem;
-		String apiUrl = null;
+    /**
+     * Retrieves the pre-demande status and appointments from the API.
+     *
+     * @param codes
+     *            The list of predemande codes to retrieve.
+     * @return The JSON response from the API.
+     * @throws IOException
+     *             If there is an error while processing the predemande codes.
+     */
+    private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments( List<String> codes ) throws IOException
+    {
+        UrlItem urlItem;
+        String apiUrl = null;
 
-		if (!codes.isEmpty())
-		{
-			urlItem = new UrlItem(PROPERTY_ENDPOINT_STATUS + PROPERTY_ID_APPLICATION_PARAMETER + "=" + codes.get(0));
-			for (int i = 1; i < codes.size(); i++)
-			{
-				urlItem.addParameter(PROPERTY_ID_APPLICATION_PARAMETER, codes.get(i));
-			}
+        if ( !codes.isEmpty( ) )
+        {
+            urlItem = new UrlItem( PROPERTY_ENDPOINT_STATUS + PROPERTY_ID_APPLICATION_PARAMETER + "=" + codes.get( 0 ) );
+            for ( int i = 1; i < codes.size( ); i++ )
+            {
+                urlItem.addParameter( PROPERTY_ID_APPLICATION_PARAMETER, codes.get( i ) );
+            }
 
-			apiUrl = urlItem.toString();
-		}
+            apiUrl = urlItem.toString( );
+        }
 
-		HttpAccess httpAccess = new HttpAccess();
+        HttpAccess httpAccess = new HttpAccess( );
 
-		Map<String, String> headers = new HashMap<>();
-		headers.put(PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE);
+        Map<String, String> headers = new HashMap<>( );
+        headers.put( PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE );
 
-		try
-		{
-			String jsonResponse = httpAccess.doGet(apiUrl, null, null, headers);
-			ObjectMapper mapper = new ObjectMapper();
-			TypeReference<HashMap<String, PredemandeResponse>> typeRef = new TypeReference<HashMap<String, PredemandeResponse>>()
-			{};
-			return mapper.readValue(jsonResponse, typeRef);
-		}
-		catch (HttpAccessException | IOException ex)
-		{
-			AppLogService.error("Error calling API {}", apiUrl, ex);
-			return Collections.emptyMap();
-		}
-	}
+        try
+        {
+            String jsonResponse = httpAccess.doGet( apiUrl, null, null, headers );
+            ObjectMapper mapper = new ObjectMapper( );
+            TypeReference<HashMap<String, PredemandeResponse>> typeRef = new TypeReference<HashMap<String, PredemandeResponse>>( )
+            {
+            };
+            return mapper.readValue( jsonResponse, typeRef );
+        }
+        catch( HttpAccessException | IOException ex )
+        {
+            AppLogService.error( "Error calling API {}", apiUrl, ex );
+            return Collections.emptyMap( );
+        }
+    }
 }

@@ -37,22 +37,26 @@ import fr.paris.lutece.plugins.accesscontrol.business.config.AbstractControllerC
 
 public class SlotsNumberAccessControllerConfig extends AbstractControllerConfig
 {
-	private String _strNbAntsApplicationParamName;
-	private String _strNbSlotsToTakeParamName;
-	
-	public String getNbAntsApplicationParamName() {
-		return _strNbAntsApplicationParamName;
-	}
-	
-	public String getNbSlotsToTakeParamName() {
-		return _strNbSlotsToTakeParamName;
-	}
-	
-	public void setNbAntsApplicationParamName(String nbAntsApplicationParamName) {
-		_strNbAntsApplicationParamName = nbAntsApplicationParamName;
-	}
-	
-	public void setNbSlotsToTakeParamName(String nbSlotsTakenParamName) {
-		_strNbSlotsToTakeParamName = nbSlotsTakenParamName;
-	}
+    private String _strNbAntsApplicationParamName;
+    private String _strNbSlotsToTakeParamName;
+
+    public String getNbAntsApplicationParamName( )
+    {
+        return _strNbAntsApplicationParamName;
+    }
+
+    public String getNbSlotsToTakeParamName( )
+    {
+        return _strNbSlotsToTakeParamName;
+    }
+
+    public void setNbAntsApplicationParamName( String nbAntsApplicationParamName )
+    {
+        _strNbAntsApplicationParamName = nbAntsApplicationParamName;
+    }
+
+    public void setNbSlotsToTakeParamName( String nbSlotsTakenParamName )
+    {
+        _strNbSlotsToTakeParamName = nbSlotsTakenParamName;
+    }
 }

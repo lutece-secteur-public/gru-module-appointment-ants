@@ -45,92 +45,93 @@ public class RequestParameters
     private String _nbPlacesToTakeValue;
     private String _anchorParameter;
     private String _anchorValue;
-    public String getCategoryParameter()
+
+    public String getCategoryParameter( )
     {
         return _categoryParameter;
     }
 
-    public void setCategoryParameter(String categoryParameter)
+    public void setCategoryParameter( String categoryParameter )
     {
         this._categoryParameter = categoryParameter;
     }
 
-    public String getCategoryValue()
+    public String getCategoryValue( )
     {
         return _categoryValue;
     }
 
-    public void setCategoryValue(String categoryValue)
+    public void setCategoryValue( String categoryValue )
     {
         this._categoryValue = categoryValue;
     }
 
-    public String getFormIdParameter()
+    public String getFormIdParameter( )
     {
         return _formIdParameter;
     }
 
-    public void setFormIdParameter(String formIdParameter)
+    public void setFormIdParameter( String formIdParameter )
     {
         this._formIdParameter = formIdParameter;
     }
 
-    public String getDateTimeParameter()
+    public String getDateTimeParameter( )
     {
         return _dateTimeParameter;
     }
 
-    public void setDateTimeParameter(String dateTimeParameter)
+    public void setDateTimeParameter( String dateTimeParameter )
     {
         this._dateTimeParameter = dateTimeParameter;
     }
 
-    public String getDateTimeValue()
+    public String getDateTimeValue( )
     {
         return _dateTimeValue;
     }
 
-    public void setDateTimeValue(String dateTimeValue)
+    public void setDateTimeValue( String dateTimeValue )
     {
         this._dateTimeValue = dateTimeValue;
     }
 
-    public String getNbPlacesToTakeParameter()
+    public String getNbPlacesToTakeParameter( )
     {
         return _nbPlacesToTakeParameter;
     }
 
-    public void setNbPlacesToTakeParameter(String nbPlacesToTakeParameter)
+    public void setNbPlacesToTakeParameter( String nbPlacesToTakeParameter )
     {
         this._nbPlacesToTakeParameter = nbPlacesToTakeParameter;
     }
 
-    public String getNbPlacesToTakeValue()
+    public String getNbPlacesToTakeValue( )
     {
         return _nbPlacesToTakeValue;
     }
 
-    public void setNbPlacesToTakeValue(String nbPlacesToTakeValue)
+    public void setNbPlacesToTakeValue( String nbPlacesToTakeValue )
     {
         this._nbPlacesToTakeValue = nbPlacesToTakeValue;
     }
 
-    public String getAnchorParameter()
+    public String getAnchorParameter( )
     {
         return _anchorParameter;
     }
 
-    public void setAnchorParameter(String anchorParameter)
+    public void setAnchorParameter( String anchorParameter )
     {
         this._anchorParameter = anchorParameter;
     }
 
-    public String getAnchorValue()
+    public String getAnchorValue( )
     {
         return _anchorValue;
     }
 
-    public void setAnchorValue(String anchorValue)
+    public void setAnchorValue( String anchorValue )
     {
         this._anchorValue = anchorValue;
     }

@@ -123,16 +123,16 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
     @Override
     public String validate( HttpServletRequest request, AccessController controller )
     {
-        SlotsNumberAccessControllerConfig config = _dao.load(controller.getId());
+        SlotsNumberAccessControllerConfig config = _dao.load( controller.getId( ) );
         String strRefAppointment = request.getParameter( PARAMETER_REF_APPOINTMENT );
 
-        if( strRefAppointment != null )
+        if ( strRefAppointment != null )
         {
             Appointment appointment = AppointmentService.findAppointmentByReference( strRefAppointment );
 
             if ( appointment == null )
             {
-                return config.getErrorMessage();
+                return config.getErrorMessage( );
             }
 
             return null;
@@ -140,33 +140,38 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
 
         String strNbPlacesToTake = request.getParameter( PARAMETER_SLOTS_NUMBER );
 
-        if( strNbPlacesToTake != null ) {
+        if ( strNbPlacesToTake != null )
+        {
             _nNbPlacesToTake = Integer.parseInt( strNbPlacesToTake );
             /* mono slot appointment case */
-            if( _nNbPlacesToTake == 0 ) {
+            if ( _nNbPlacesToTake == 0 )
+            {
                 _nNbPlacesToTake = 1;
             }
         }
 
-        if( _nNbPlacesToTake > -1 ) {
+        if ( _nNbPlacesToTake > -1 )
+        {
 
             /* Value entered by the user in the Controller View */
-            HttpSession session = request.getSession();
+            HttpSession session = request.getSession( );
 
-            if (session == null) {
+            if ( session == null )
+            {
                 return null;
             }
 
-            int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession(session, ",");
+            int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession( session, "," );
 
             // If there are more slots taken than ANTS Application numbers
-            if (_nNbPlacesToTake != nbAntsApplications) {
-                return config.getErrorMessage();
+            if ( _nNbPlacesToTake != nbAntsApplications )
+            {
+                return config.getErrorMessage( );
             }
         }
         else
         {
-            return config.getErrorMessage();
+            return config.getErrorMessage( );
         }
         return null;
     }

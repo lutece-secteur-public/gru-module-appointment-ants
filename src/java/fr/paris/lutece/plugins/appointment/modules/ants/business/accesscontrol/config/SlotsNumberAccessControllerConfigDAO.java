@@ -81,7 +81,7 @@ public class SlotsNumberAccessControllerConfigDAO implements IAccessControllerCo
     @Override
     public SlotsNumberAccessControllerConfig load( int nIdAccessController )
     {
-    	SlotsNumberAccessControllerConfig config = null;
+        SlotsNumberAccessControllerConfig config = null;
         try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, AccessControlUtils.getPlugin( ) ) )
         {
             daoUtil.setInt( 1, nIdAccessController );

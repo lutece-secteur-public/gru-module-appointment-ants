@@ -36,12 +36,12 @@ package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
 public enum PreDemandeStatusEnum
 {
-	   
-	   DRAFT,  		// N/A
-	   CONSUMED,   // « consumed »
-	   VALIDATED,  // « validated »
-	   DECLARED,   // « declared »
-	   UNKNOWN,    // « unknown »
-	   EXPIRED,    // « expired »
-	   PURGE       // N/A
+
+    DRAFT, // N/A
+    CONSUMED, // « consumed »
+    VALIDATED, // « validated »
+    DECLARED, // « declared »
+    UNKNOWN, // « unknown »
+    EXPIRED, // « expired »
+    PURGE // N/A
 }
