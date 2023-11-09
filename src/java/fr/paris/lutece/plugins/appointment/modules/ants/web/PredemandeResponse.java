@@ -33,97 +33,96 @@
  */
 package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
-
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties( ignoreUnknown = true )
 public class PredemandeResponse
 {
 
-	@JsonProperty("status")
-	private String _status;
+    @JsonProperty( "status" )
+    private String _status;
 
-	@JsonProperty("appointments")
-	private List<Appointment> _appointments;
+    @JsonProperty( "appointments" )
+    private List<Appointment> _appointments;
 
-	// Getter & setters
-	public String getStatus()
-	{
-		return _status;
-	}
+    // Getter & setters
+    public String getStatus( )
+    {
+        return _status;
+    }
 
-	public void setStatus(String status) 
-	{
-		this._status = status;
-	}
+    public void setStatus( String status )
+    {
+        this._status = status;
+    }
 
-	public List<Appointment> getAppointments() 
-	{
-		return _appointments;
-	}
+    public List<Appointment> getAppointments( )
+    {
+        return _appointments;
+    }
 
-	public void setAppointments(List<Appointment> appointments) 
-	{
-		this._appointments = appointments;
-	}
+    public void setAppointments( List<Appointment> appointments )
+    {
+        this._appointments = appointments;
+    }
 
-	public static class Appointment
-	{
-		@JsonProperty("management_url")
-		private String _managementUrl;
+    public static class Appointment
+    {
+        @JsonProperty( "management_url" )
+        private String _managementUrl;
 
-		@JsonProperty("meeting_point")
-		private String _meetingPoint;
+        @JsonProperty( "meeting_point" )
+        private String _meetingPoint;
 
-		@JsonProperty("appointment_date")
-		private String _appointmentDate;
+        @JsonProperty( "appointment_date" )
+        private String _appointmentDate;
 
-		@JsonProperty("editor_comment")
-		private String _editorComment;
+        @JsonProperty( "editor_comment" )
+        private String _editorComment;
 
-		// Getter & setters
-		public String getManagementUrl() 
-		{
-			return _managementUrl;
-		}
+        // Getter & setters
+        public String getManagementUrl( )
+        {
+            return _managementUrl;
+        }
 
-		public String getMeetingPoint() 
-		{
-			return _meetingPoint;
-		}
+        public String getMeetingPoint( )
+        {
+            return _meetingPoint;
+        }
 
-		public String getAppointmentDate()
-		{
-			return _appointmentDate;
-		}
+        public String getAppointmentDate( )
+        {
+            return _appointmentDate;
+        }
 
-		public String getEditorComment()
-		{
-			return _editorComment;
-		}
+        public String getEditorComment( )
+        {
+            return _editorComment;
+        }
 
-		public void setManagementUrl(String managementUrl) 
-		{
-			this._managementUrl = managementUrl;
-		}
+        public void setManagementUrl( String managementUrl )
+        {
+            this._managementUrl = managementUrl;
+        }
 
-		public void setMeetingPoint(String meetingPoint) 
-		{
-			this._meetingPoint = meetingPoint;
-		}
+        public void setMeetingPoint( String meetingPoint )
+        {
+            this._meetingPoint = meetingPoint;
+        }
 
-		public void setAppointmentDate(String appointmentDate)
-		{
-			this._appointmentDate = appointmentDate;
-		}
+        public void setAppointmentDate( String appointmentDate )
+        {
+            this._appointmentDate = appointmentDate;
+        }
 
-		public void setEditorComment(String editorComment)
-		{
-			this._editorComment = editorComment;
-		}
-	}
+        public void setEditorComment( String editorComment )
+        {
+            this._editorComment = editorComment;
+        }
+    }
 
 }
