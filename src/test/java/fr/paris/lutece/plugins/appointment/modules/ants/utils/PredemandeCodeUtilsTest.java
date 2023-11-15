@@ -82,4 +82,18 @@ public class PredemandeCodeUtilsTest extends LuteceTestCase
         assertEquals( "TEST000001,TEST000002", session.getAttribute( "APPOINTMENT_CODE_PREDEMANDE" ) );
     }
 
+    public void testHasUniqueValues( )
+    {
+        List<String> predemandeCodesList = new ArrayList<>( );
+        predemandeCodesList.add( "TEST000001" );
+        predemandeCodesList.add( "TEST000002" );
+        predemandeCodesList.add( "TEST000003" );
+
+        // All the values in the list are unique, so the assertion is successful
+        assertTrue( PredemandeCodeUtils.hasUniqueValues( predemandeCodesList ) );
+
+        predemandeCodesList.add( "TEST000001" );
+        // Now two values in the list are the same, so we expect the assertion to "fail"
+        assertFalse( PredemandeCodeUtils.hasUniqueValues( predemandeCodesList ) );
+    }
 }

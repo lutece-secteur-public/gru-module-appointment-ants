@@ -34,24 +34,24 @@
 package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import fr.paris.lutece.plugins.appointment.modules.ants.common.RequestParameters;
-import fr.paris.lutece.portal.service.i18n.I18nService;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
 
-import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
-import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
-import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
-import fr.paris.lutece.portal.web.xpages.XPage;
-import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
+import fr.paris.lutece.plugins.appointment.modules.ants.common.RequestParameters;
 import fr.paris.lutece.plugins.appointment.modules.ants.service.PreDemandeValidationService;
 import fr.paris.lutece.plugins.appointment.modules.ants.utils.PredemandeCodeUtils;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
+import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
+import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
+import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
+import fr.paris.lutece.portal.web.xpages.XPage;
 
 @Controller( xpageName = AppointmentAntsApp.XPAGE_NAME, pageTitleI18nKey = "module.appointment.ants.pageTitle", pagePathI18nKey = "module.appointment.ants.pagePathLabel" )
 public class AppointmentAntsApp extends MVCApplication
@@ -85,8 +85,9 @@ public class AppointmentAntsApp extends MVCApplication
     private static final String ACTION_PRE_SEARCH = "presearch";
 
     // PROPERTIES
-    private static final String PROPERTY_ID_PREDEMANDE_CODE_SUFFIX = "predemande_code_";
+    private static final String PROPERTY_ID_PREDEMANDE_CODE_PREFIX = "predemande_code_";
     private static final String PROPERTY_ERROR_MESSAGE = "module.appointment.ants.display.fieldsErrorMessage";
+    private static final String PROPERTY_PREDEMANDE_CODES_NOT_UNIQUE_ERROR_MESSAGE = "module.appointment.ants.display.predemandeCodesNotUniqueErrorMessage";
 
     // PARAMETERS
     private static final String PARAMETER_CATEGORIE = "category";
@@ -102,6 +103,7 @@ public class AppointmentAntsApp extends MVCApplication
     private static final String MARKER_STARTING_DATE_TIME = "starting_date_time";
     private static final String MARKER_ID_FORM = "id_form";
     private static final String MARKER_NB_PLACES_TO_TAKE = "nbPlacesToTake";
+    private static final String MARKER_LIST_ANTS_CODES = "list_ants_codes";
 
     private static final String PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY = "ants.session.attribute.name";
     private static final String CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME = AppPropertiesService
@@ -122,6 +124,8 @@ public class AppointmentAntsApp extends MVCApplication
         String dateTime = request.getParameter( PARAMETER_DATE_TIME );
         String idForm = request.getParameter( PARAMETER_ID_FORM );
         String nbPlacesToTake = request.getParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
+        List<String> predemandeCodeList = null;
+
         if ( dateTime != null )
         {
             model.put( MARKER_STARTING_DATE_TIME, dateTime );
@@ -135,8 +139,14 @@ public class AppointmentAntsApp extends MVCApplication
         if ( nbPlacesToTake != null )
         {
             model.put( MARKER_NB_PLACES_TO_TAKE, nbPlacesToTake );
-        }
 
+            // Try to retrieve the predemande codes, if any was previously entered
+            predemandeCodeList = PredemandeCodeUtils.getPredemandeCodeList( request, PROPERTY_ID_PREDEMANDE_CODE_PREFIX, Integer.parseInt( nbPlacesToTake ) );
+        }
+        if ( predemandeCodeList != null && !predemandeCodeList.isEmpty( ) )
+        {
+            model.put( MARKER_LIST_ANTS_CODES, predemandeCodeList );
+        }
         return getXPage( TEMPLATE_PREDEMANDEFORM, request.getLocale( ), model );
     }
 
@@ -150,63 +160,77 @@ public class AppointmentAntsApp extends MVCApplication
     @Action( value = ACTION_PRE_SEARCH )
     public XPage presearch( HttpServletRequest request ) throws IOException
     {
-        Integer nbPlacesToTake = Integer.parseInt( request.getParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE ) );
-        String fieldsErrorMessage = I18nService.getLocalizedString( PROPERTY_ERROR_MESSAGE, request.getLocale( ) );
+        String nbPlacesToTake = request.getParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
         String dateTime = request.getParameter( PARAMETER_DATE_TIME );
+        String idForm = request.getParameter( PARAMETER_ID_FORM );
 
-        List<String> predemandeCodeList = PredemandeCodeUtils.getPredemandeCodeList( request, PROPERTY_ID_PREDEMANDE_CODE_SUFFIX, nbPlacesToTake );
+        List<String> predemandeCodeList = PredemandeCodeUtils.getPredemandeCodeList( request, PROPERTY_ID_PREDEMANDE_CODE_PREFIX,
+                Integer.parseInt( nbPlacesToTake ) );
 
-        HttpSession session = request.getSession( true );
-        PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, ",", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
+        Map<String, String> additionalParameters = new Hashtable<>( );
+        additionalParameters.put( PARAMETER_NUMBER_OF_PLACES_TO_TAKE, nbPlacesToTake );
+        additionalParameters.put( PARAMETER_DATE_TIME, dateTime );
+        additionalParameters.put( PARAMETER_ID_FORM, idForm );
 
-        XPage redirectionXpage;
-        String url;
+        // Add the predemande code in the parameters, so they can be retrieved later if necessary
+        for ( int i = 1; i <= Integer.parseInt( nbPlacesToTake ); i++ )
+        {
+            String inputIdValue = PROPERTY_ID_PREDEMANDE_CODE_PREFIX.concat( String.valueOf( i ) );
+            additionalParameters.put( inputIdValue, request.getParameter( inputIdValue ) );
+        }
+
+        // If there's a date in the parameters, then the current user is coming from the ANTS' website
+        boolean isUserFromAnts = StringUtils.isNotBlank( dateTime );
+
+        // Check if the predemande codes are unique. If they aren't, then display an error on the page
+        if ( !PredemandeCodeUtils.hasUniqueValues( predemandeCodeList ) )
+        {
+            addError( PROPERTY_PREDEMANDE_CODES_NOT_UNIQUE_ERROR_MESSAGE, request.getLocale( ) );
+            return redirect( request, VIEW_PREDEMANDEFORM, additionalParameters );
+        }
+
         boolean isAllCodesValid = PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments( predemandeCodeList );
 
-        RequestParameters params = new RequestParameters( );
-        params.setNbPlacesToTakeValue( String.valueOf( nbPlacesToTake ) );
-
-        if ( StringUtils.isNotBlank( dateTime ) )
+        // If one ore more codes are not valid, display an error message to the user
+        if ( !isAllCodesValid )
         {
-            params.setFormIdParameter( PARAMETER_ID_FORM );
-            params.setDateTimeParameter( PARAMETER_DATE_TIME );
-            params.setDateTimeValue( dateTime );
-            params.setNbPlacesToTakeParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
+            addError( PROPERTY_ERROR_MESSAGE, request.getLocale( ) );
+            return redirect( request, VIEW_PREDEMANDEFORM, additionalParameters );
+        }
+        else
+        {
+            // Save the predemande codes in the current session
+            HttpSession session = request.getSession( true );
+            PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, ",", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
 
-            if ( !isAllCodesValid )
+            RequestParameters params = new RequestParameters( );
+            params.setNbPlacesToTakeValue( String.valueOf( nbPlacesToTake ) );
+            String url;
+
+            // Codes are valid and the user comes from the ANTS web site
+            if ( isUserFromAnts )
             {
-                addError( fieldsErrorMessage );
-                url = PredemandeCodeUtils.constructRedirectionUrl( request, XPAGE_NAME, VIEW_PREDEMANDEFORM, params );
-            }
-            else
-            {
+                params.setFormIdParameter( PARAMETER_ID_FORM );
+                params.setDateTimeParameter( PARAMETER_DATE_TIME );
+                params.setDateTimeValue( dateTime );
+                params.setNbPlacesToTakeParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
                 params.setAnchorParameter( PARAMETER_ANCHOR );
                 params.setAnchorValue( STEP_3 );
                 url = PredemandeCodeUtils.constructRedirectionUrl( request, APPOINTMENT_PLUGIN_XPAGE_NAME, APPOINTMENT_PLUGIN_APPOINTMENTFORM_VIEW_NAME,
                         params );
-            }
-            redirectionXpage = redirect( request, url );
 
-        }
-        else
-        {
-            if ( !isAllCodesValid )
-            {
-                addError( fieldsErrorMessage );
-                redirectionXpage = redirectView( request, VIEW_PREDEMANDEFORM );
+                return redirect( request, url );
             }
             else
             {
+                // Codes are valid and the user does not come from the ANTS web site
                 params.setCategoryParameter( PARAMETER_CATEGORIE );
                 params.setCategoryValue( PARAMETER_CATEGORIE_TITRES );
                 params.setNbPlacesToTakeParameter( PARAMETER_NB_CONSECUTIVE_SLOTS );
                 url = PredemandeCodeUtils.constructRedirectionUrl( request, APPOINTMENTSEARCH_PLUGIN_XPAGE_NAME, APPOINTMENTSEARCH_PLUGIN_SEARCH_VIEW_NAME,
                         params );
-                redirectionXpage = redirect( request, url );
+                return redirect( request, url );
             }
         }
-
-        return redirectionXpage;
     }
-
 }
