@@ -34,14 +34,16 @@
 package fr.paris.lutece.plugins.appointment.modules.ants.utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import fr.paris.lutece.plugins.appointment.modules.ants.common.RequestParameters;
 import org.apache.commons.lang3.StringUtils;
 
+import fr.paris.lutece.plugins.appointment.modules.ants.common.RequestParameters;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.util.url.UrlItem;
@@ -184,4 +186,19 @@ public class PredemandeCodeUtils
         return nbTotalPredemande;
     }
 
+    /**
+     * Check if the elements from a List of Strings are unique / distinct
+     * 
+     * @param list
+     *            The list to check
+     * @return True if the list's elements are unique, returns false otherwise
+     */
+    public static boolean hasUniqueValues( List<String> list )
+    {
+        // Create a Set containing the unique values from the given List
+        Set<String> uniqueValuesList = new HashSet<>( list );
+
+        // If the Set's size is different than the List's size, then 2 or more values of the List are not unique
+        return uniqueValuesList.size( ) == list.size( );
+    }
 }
