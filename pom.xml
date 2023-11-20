@@ -32,18 +32,18 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-httpaccess</artifactId>
-            <version>[3.0.1-SNAPSHOT,)</version>
+            <version>[3.0.1,)</version>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-accesscontrol</artifactId>
-            <version>[1.0.2-SNAPSHOT,)</version>
+            <version>[1.0.2,)</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-appointment</artifactId>
-            <version>[3.0.7-SNAPSHOT,)</version>
+            <version>[3.0.7,)</version>
             <type>lutece-plugin</type>
         </dependency>
     </dependencies>
@@ -51,14 +51,13 @@
     <properties>
         <componentName>appointment-ants</componentName>
         <jiraProjectName>APPOINTMENT-ANTS</jiraProjectName>
-        <jiraComponentId>13452</jiraComponentId>
-        <sonar.tests />
+        <jiraComponentId/>
     </properties>
 
     <scm>
-        <connection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</connection>
-        <developerConnection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</developerConnection>
-        <url>https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</url>
+        <connection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-ants.git</connection>
+        <developerConnection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-ants.git</developerConnection>
+        <url>https://github.com/lutece-secteur-public/gru-module-appointment-ants.git</url>
         <tag>HEAD</tag>
     </scm>
 
