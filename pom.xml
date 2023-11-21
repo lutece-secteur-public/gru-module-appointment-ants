@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>module-appointment-ants</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>Lutece appointment ants module</name>
 
     <repositories>
@@ -58,7 +58,7 @@
         <connection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-ants.git</connection>
         <developerConnection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-ants.git</developerConnection>
         <url>https://github.com/lutece-secteur-public/gru-module-appointment-ants.git</url>
-        <tag>module-appointment-ants-1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
 </project>
