@@ -34,22 +34,22 @@
 
 package fr.paris.lutece.plugins.appointment.modules.ants.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import fr.paris.lutece.util.httpaccess.HttpAccessException;
-import fr.paris.lutece.util.httpaccess.HttpAccess;
-import fr.paris.lutece.plugins.appointment.modules.ants.web.PreDemandeStatusEnum;
-import fr.paris.lutece.plugins.appointment.modules.ants.web.PredemandeResponse;
-import fr.paris.lutece.portal.service.util.AppLogService;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import fr.paris.lutece.plugins.appointment.modules.ants.utils.HttpCallsUtils;
+import fr.paris.lutece.plugins.appointment.modules.ants.web.PreDemandeStatusEnum;
+import fr.paris.lutece.plugins.appointment.modules.ants.web.PredemandeResponse;
+import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.util.httpaccess.HttpAccess;
+import fr.paris.lutece.util.httpaccess.HttpAccessException;
 import fr.paris.lutece.util.url.UrlItem;
 
 /**
@@ -62,6 +62,10 @@ public class PreDemandeValidationService
     private static final String PROPERTY_API_OPT_AUTH_TOKEN_KEY = AppPropertiesService.getProperty( "ants.auth.token" );
     private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService.getProperty( "ants.api.opt.auth.token" );
     private static final String PROPERTY_ID_APPLICATION_PARAMETER = AppPropertiesService.getProperty( "ants.ids_application.parameters" );
+
+    // Timeout properties specific to the ANTS HTTP calls
+    private static final String PROPERTY_SOCKET_TIMEOUT = "ants.api.socketTimeout";
+    private static final String PROPERTY_CONNECTION_TIMEOUT = "ants.api.connectionTimeout";
 
     private PreDemandeValidationService( )
     {
@@ -123,7 +127,9 @@ public class PreDemandeValidationService
             apiUrl = urlItem.toString( );
         }
 
-        HttpAccess httpAccess = new HttpAccess( );
+        // Create a new HttpAccess object with specific timeout values, if any was set,
+        // otherwise the default configuration will be used
+        HttpAccess httpAccess = HttpCallsUtils.getHttpAccessTimeoutFromProperties( PROPERTY_SOCKET_TIMEOUT, PROPERTY_CONNECTION_TIMEOUT );
 
         Map<String, String> headers = new HashMap<>( );
         headers.put( PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE );
