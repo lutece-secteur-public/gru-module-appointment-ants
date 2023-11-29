@@ -73,12 +73,19 @@ public class PreDemandeValidationService
      * @param codes
      *            The list of predemande codes to process.
      * @return True if all predemande codes are validated and have appointments; otherwise, false.
-     * @throws IOException
-     *             If there is an error while processing the predemande codes.
      */
-    public static boolean checkPredemandeCodesValidationAndAppointments( List<String> codes ) throws IOException
+    public static boolean checkPredemandeCodesValidationAndAppointments( List<String> codes )
     {
-        Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments( codes );
+        Map<String, PredemandeResponse> responseMap;
+        try
+        {
+            responseMap = getPreDemandeStatusAndAppointments( codes );
+        }
+        catch (HttpAccessException ex)
+        {
+            AppLogService.error( "Error calling API {}", ex );
+            return true;
+        }
 
         if ( responseMap.isEmpty( ) )
         {
@@ -104,11 +111,8 @@ public class PreDemandeValidationService
      * @param codes
      *            The list of predemande codes to retrieve.
      * @return The JSON response from the API.
-     * @throws IOException
-     *             If there is an error while processing the predemande codes.
      */
-    private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments( List<String> codes ) throws IOException
-    {
+    private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments( List<String> codes ) throws HttpAccessException {
         UrlItem urlItem;
         String apiUrl = null;
 
@@ -137,7 +141,7 @@ public class PreDemandeValidationService
             };
             return mapper.readValue( jsonResponse, typeRef );
         }
-        catch( HttpAccessException | IOException ex )
+        catch( IOException ex )
         {
             AppLogService.error( "Error calling API {}", apiUrl, ex );
             return Collections.emptyMap( );
