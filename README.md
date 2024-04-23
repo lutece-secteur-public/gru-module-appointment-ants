@@ -5,10 +5,6 @@ This module facilitates the implementation of the user journey in the front-offi
 
 For being able to run the module appointment ants on you local machine, you need to have a tomcat server configured, eclipse, java 8, maven (at least 3.3.9), ant, and a mysql local instance (with mysqlWorkBench).
 
-Configure `appointment-ants.properties` : 
-
-Replace `<Insert valid ANTS API Token>` with your actual ANTS API token and session attiribute name `APPOINTMENT_CODE_PREDEMANDE` inside the .properties file
-
 
 ### Installing
 

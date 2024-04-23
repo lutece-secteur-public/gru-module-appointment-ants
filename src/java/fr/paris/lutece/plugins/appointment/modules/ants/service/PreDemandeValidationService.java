@@ -51,6 +51,7 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.httpaccess.HttpAccess;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
 import fr.paris.lutece.util.url.UrlItem;
+import fr.paris.lutece.portal.service.datastore.DatastoreService;
 
 /**
  * This class provides methods for processing and validating predemande codes.
@@ -60,7 +61,7 @@ public class PreDemandeValidationService
 
     private static final String PROPERTY_ENDPOINT_STATUS = AppPropertiesService.getProperty( "ants.api.opt.get.status" );
     private static final String PROPERTY_API_OPT_AUTH_TOKEN_KEY = AppPropertiesService.getProperty( "ants.auth.token" );
-    private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = AppPropertiesService.getProperty( "ants.api.opt.auth.token" );
+    private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = String.valueOf( DatastoreService.getDataValue( "module.appointment.ants.site_property.token" ,"") );
     private static final String PROPERTY_ID_APPLICATION_PARAMETER = AppPropertiesService.getProperty( "ants.ids_application.parameters" );
 
     // Timeout properties specific to the ANTS HTTP calls
