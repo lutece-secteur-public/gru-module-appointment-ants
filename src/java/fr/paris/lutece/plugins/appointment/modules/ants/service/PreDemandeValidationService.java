@@ -83,7 +83,7 @@ public class PreDemandeValidationService
         }
         catch (HttpAccessException ex)
         {
-            AppLogService.error( "Error calling API {}", ex );
+            AppLogService.error( "Error calling API " + ex.getMessage( ), ex );
             return true;
         }
 
