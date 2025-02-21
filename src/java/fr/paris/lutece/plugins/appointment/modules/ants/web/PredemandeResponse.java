@@ -77,6 +77,9 @@ public class PredemandeResponse
         @JsonProperty( "meeting_point" )
         private String _meetingPoint;
 
+        @JsonProperty( "meeting_point_id" )
+        private String _meetingPointId;
+
         @JsonProperty( "appointment_date" )
         private String _appointmentDate;
 
@@ -92,6 +95,11 @@ public class PredemandeResponse
         public String getMeetingPoint( )
         {
             return _meetingPoint;
+        }
+
+        public String getMeetingPointId( )
+        {
+            return _meetingPointId;
         }
 
         public String getAppointmentDate( )
@@ -112,6 +120,11 @@ public class PredemandeResponse
         public void setMeetingPoint( String meetingPoint )
         {
             this._meetingPoint = meetingPoint;
+        }
+
+        public void setMeetingPointId( String meetingPointId )
+        {
+            this._meetingPointId = meetingPointId;
         }
 
         public void setAppointmentDate( String appointmentDate )

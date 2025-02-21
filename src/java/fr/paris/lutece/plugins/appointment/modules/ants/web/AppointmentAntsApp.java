@@ -189,7 +189,7 @@ public class AppointmentAntsApp extends MVCApplication
             return redirect( request, VIEW_PREDEMANDEFORM, additionalParameters );
         }
 
-        boolean isAllCodesValid = PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments( predemandeCodeList );
+        boolean isAllCodesValid = PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments( predemandeCodeList, Integer.valueOf( idForm ) );
 
         // If one ore more codes are not valid, display an error message to the user
         if ( !isAllCodesValid )
