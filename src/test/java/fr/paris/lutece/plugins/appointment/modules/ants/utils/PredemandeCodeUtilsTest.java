@@ -78,7 +78,7 @@ public class PredemandeCodeUtilsTest extends LuteceTestCase
         predemandeCodeList.add( "TEST000001" );
         predemandeCodeList.add( "TEST000002" );
 
-        PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, ",", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
+        PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, ", ", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
         assertEquals( "TEST000001,TEST000002", session.getAttribute( "APPOINTMENT_CODE_PREDEMANDE" ) );
     }
 
