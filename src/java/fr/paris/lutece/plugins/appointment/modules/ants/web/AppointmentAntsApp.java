@@ -160,6 +160,7 @@ public class AppointmentAntsApp extends MVCApplication
     @Action( value = ACTION_PRE_SEARCH )
     public XPage presearch( HttpServletRequest request ) throws IOException
     {
+        // The value of these parameters is retrieved when the user is coming from the ANTS' website
         String nbPlacesToTake = request.getParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
         String dateTime = request.getParameter( PARAMETER_DATE_TIME );
         String idForm = request.getParameter( PARAMETER_ID_FORM );
@@ -189,7 +190,8 @@ public class AppointmentAntsApp extends MVCApplication
             return redirect( request, VIEW_PREDEMANDEFORM, additionalParameters );
         }
 
-        boolean isAllCodesValid = PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments( predemandeCodeList, Integer.valueOf( idForm ) );
+        // Check if all the ANTS codes are valid
+        boolean isAllCodesValid = PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments( predemandeCodeList );
 
         // If one ore more codes are not valid, display an error message to the user
         if ( !isAllCodesValid )
