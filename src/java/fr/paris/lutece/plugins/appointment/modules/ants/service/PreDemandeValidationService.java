@@ -35,6 +35,8 @@
 package fr.paris.lutece.plugins.appointment.modules.ants.service;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +45,6 @@ import java.util.Map;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.paris.lutece.plugins.appointment.modules.ants.utils.AppointmentAntsUtils;
 import fr.paris.lutece.plugins.appointment.modules.ants.utils.HttpCallsUtils;
 import fr.paris.lutece.plugins.appointment.modules.ants.web.PreDemandeStatusEnum;
 import fr.paris.lutece.plugins.appointment.modules.ants.web.PredemandeResponse;
@@ -65,6 +66,7 @@ public class PreDemandeValidationService
     private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = String.valueOf( DatastoreService.getDataValue( "module.appointment.ants.site_property.token" ,"") );
     private static final String PROPERTY_ID_APPLICATION_PARAMETER = AppPropertiesService.getProperty( "ants.ids_application.parameters" );
     private static final String PROPERTY_MEETING_POINT_ID_PARAMETER = AppPropertiesService.getProperty( "ants.meeting_point_id.parameters" );
+    private static final String PROPERTY_MEETING_POINT_ID_DEFAULT_VALUE = AppPropertiesService.getProperty( "ants.meeting_point_id.defaultValue" );
 
     // Timeout properties specific to the ANTS HTTP calls
     private static final String PROPERTY_SOCKET_TIMEOUT = "ants.api.socketTimeout";
@@ -79,15 +81,13 @@ public class PreDemandeValidationService
      *
      * @param codes
      *            The list of predemande codes to process.
-     * @param formId
-     *            The ID of the Form being used
      * @return True if all predemande codes are validated and have appointments; otherwise, false.
      * @throws IOException
      *             If there is an error while processing the predemande codes.
      */
-    public static boolean checkPredemandeCodesValidationAndAppointments( List<String> codes, int formId ) throws IOException
+    public static boolean checkPredemandeCodesValidationAndAppointments( List<String> codes ) throws IOException
     {
-        Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments( codes, formId );
+        Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments( codes );
 
         if ( responseMap.isEmpty( ) )
         {
@@ -112,13 +112,11 @@ public class PreDemandeValidationService
      *
      * @param codes
      *            The list of predemande codes to retrieve.
-     * @param formId
-     *            The ID of the Form being used
      * @return The JSON response from the API.
      * @throws IOException
      *             If there is an error while processing the predemande codes.
      */
-    private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments( List<String> codes, int formId ) throws IOException
+    private static Map<String, PredemandeResponse> getPreDemandeStatusAndAppointments( List<String> codes ) throws IOException
     {
         UrlItem urlItem;
         String apiUrl = null;
@@ -131,7 +129,8 @@ public class PreDemandeValidationService
                 urlItem.addParameter( PROPERTY_ID_APPLICATION_PARAMETER, codes.get( i ) );
             }
             // Add the "meeting_point_id" parameter and its value in the URL
-            urlItem.addParameter( PROPERTY_MEETING_POINT_ID_PARAMETER, AppointmentAntsUtils.generateAntsMeetingPointId( formId ) );
+            String strMeetingPointId = URLEncoder.encode( PROPERTY_MEETING_POINT_ID_DEFAULT_VALUE, StandardCharsets.UTF_8 ).replace( "+", "%20" );
+            urlItem.addParameter( PROPERTY_MEETING_POINT_ID_PARAMETER, strMeetingPointId );
 
             apiUrl = urlItem.toString( );
         }
