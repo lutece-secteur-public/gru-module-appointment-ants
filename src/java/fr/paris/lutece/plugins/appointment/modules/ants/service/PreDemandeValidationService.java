@@ -35,8 +35,6 @@
 package fr.paris.lutece.plugins.appointment.modules.ants.service;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +52,7 @@ import fr.paris.lutece.util.httpaccess.HttpAccess;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.portal.service.datastore.DatastoreService;
+import fr.paris.lutece.portal.service.html.EncodingService;
 
 /**
  * This class provides methods for processing and validating predemande codes.
@@ -129,7 +128,7 @@ public class PreDemandeValidationService
                 urlItem.addParameter( PROPERTY_ID_APPLICATION_PARAMETER, codes.get( i ) );
             }
             // Add the "meeting_point_id" parameter and its value in the URL
-            String strMeetingPointId = URLEncoder.encode( PROPERTY_MEETING_POINT_ID_DEFAULT_VALUE, StandardCharsets.UTF_8 ).replace( "+", "%20" );
+            String strMeetingPointId = EncodingService.encodeUrl( PROPERTY_MEETING_POINT_ID_DEFAULT_VALUE ).replace( "+", "%20" );
             urlItem.addParameter( PROPERTY_MEETING_POINT_ID_PARAMETER, strMeetingPointId );
 
             apiUrl = urlItem.toString( );
