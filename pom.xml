@@ -17,7 +17,7 @@
         <repository>
             <id>lutece</id>
             <name>luteceRepository</name>
-            <url>http://dev.lutece.paris.fr/maven_repository</url>
+            <url>https://dev.lutece.paris.fr/maven_repository</url>
             <layout>default</layout>
         </repository>
     </repositories>
@@ -39,18 +39,37 @@
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-httpaccess</artifactId>
             <version>3.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>lutece-core</artifactId>
+                    <groupId>fr.paris.lutece</groupId>
+                </exclusion>
+            </exclusions>
+
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-accesscontrol</artifactId>
             <version>1.0.2</version>
             <type>lutece-plugin</type>
+             <exclusions>
+                <exclusion>
+                    <artifactId>lutece-core</artifactId>
+                    <groupId>fr.paris.lutece</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-appointment</artifactId>
             <version>3.0.8</version>
             <type>lutece-plugin</type>
+             <exclusions>
+                <exclusion>
+                    <artifactId>lutece-core</artifactId>
+                    <groupId>fr.paris.lutece</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
