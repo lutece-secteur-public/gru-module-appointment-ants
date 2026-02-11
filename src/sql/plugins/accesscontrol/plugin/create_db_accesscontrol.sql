@@ -1,3 +1,7 @@
+-- liquibase formatted sql
+-- changeset lutece-global-pom:create_db_accesscontrol.sql
+-- preconditions onFail:MARK_RAN onError:WARN
+
 --
 -- Structure for table accesscontrol_controller_age_config
 --

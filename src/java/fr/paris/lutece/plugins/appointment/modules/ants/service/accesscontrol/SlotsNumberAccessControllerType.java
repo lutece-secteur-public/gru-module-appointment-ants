@@ -46,14 +46,17 @@ import fr.paris.lutece.portal.business.accesscontrol.AccessControlSessionData;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+@ApplicationScoped
+@Named( SlotsNumberAccessControllerType.BEAN_NAME )
 public class SlotsNumberAccessControllerType extends AbstractPersistentAccessControllerType<SlotsNumberAccessControllerConfig> implements IAccessControllerType
 {
     public static final String BEAN_NAME = "accesscontrol.slotsNumberAccessControllerType";
@@ -72,8 +75,6 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
     @Inject
     @Named( SlotsNumberAccessControllerConfigDAO.BEAN_NAME )
     private IAccessControllerConfigDAO<SlotsNumberAccessControllerConfig> _dao;
-
-    private int _nNbPlacesToTake = -1;
 
     /**
      * Get the template of the page used to configure an Access Controller
@@ -139,18 +140,19 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
         }
 
         String strNbPlacesToTake = request.getParameter( PARAMETER_SLOTS_NUMBER );
+        int nNbPlacesToTake = -1;
 
         if ( strNbPlacesToTake != null )
         {
-            _nNbPlacesToTake = Integer.parseInt( strNbPlacesToTake );
+            nNbPlacesToTake = Integer.parseInt( strNbPlacesToTake );
             /* mono slot appointment case */
-            if ( _nNbPlacesToTake == 0 )
+            if ( nNbPlacesToTake == 0 )
             {
-                _nNbPlacesToTake = 1;
+                nNbPlacesToTake = 1;
             }
         }
 
-        if ( _nNbPlacesToTake > -1 )
+        if ( nNbPlacesToTake > -1 )
         {
 
             /* Value entered by the user in the Controller View */
@@ -164,7 +166,7 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
             int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession( session, "," );
 
             // If there are more slots taken than ANTS Application numbers
-            if ( _nNbPlacesToTake != nbAntsApplications )
+            if ( nNbPlacesToTake != nbAntsApplications )
             {
                 return config.getErrorMessage( );
             }

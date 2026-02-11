@@ -39,33 +39,35 @@ import fr.paris.lutece.plugins.accesscontrol.service.AccessControlServiceProvide
 import fr.paris.lutece.plugins.accesscontrol.service.IAccessControllerType;
 import fr.paris.lutece.portal.service.message.CustomSiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessage;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.portal.web.LocalVariables;
 import fr.paris.lutece.portal.web.xpages.XPage;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Specializes;
+import jakarta.enterprise.inject.literal.NamedLiteral;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
+@ApplicationScoped
+@Specializes
 public class AntsAccessControlServiceProvider extends AccessControlServiceProvider
 {
 
     public static final String SITE_MESSAGE_JSP = "jsp/site/SiteMessage.jsp";
 
-    private AccessController _currentController;
-
     @Override
     public XPage redirectToAccessControlXPage( HttpServletRequest request, int idResource, String resourceType, int idAccessControl )
     {
-
-        // Get the controller
-        IAccessControllerType controllerType = getAntsAccessController( idAccessControl );
+        AccessController controller = AccessControllerHome.findByPrimaryKey( idAccessControl );
+        IAccessControllerType controllerType = CDI.current( ).select( IAccessControllerType.class, NamedLiteral.of( controller.getType( ) ) ).get( );
 
         // If the form uses a standard AccessController
-        if ( !isAntsAccessController( controllerType ) )
+        if ( !( controllerType instanceof SlotsNumberAccessControllerType ) )
         {
             // Redirect to the standard implementation of the AccessControl XPage
             return super.redirectToAccessControlXPage( request, idResource, resourceType, idAccessControl );
@@ -73,24 +75,13 @@ public class AntsAccessControlServiceProvider extends AccessControlServiceProvid
         // If the form uses the specific ANTS access controller, we override the main execution
         else
         {
-            return validateController( request, (SlotsNumberAccessControllerType) controllerType );
+            return validateController( request, (SlotsNumberAccessControllerType) controllerType, controller );
         }
     }
 
-    private IAccessControllerType getAntsAccessController( int idAccessControl )
+    public XPage validateController( HttpServletRequest request, SlotsNumberAccessControllerType controllerType, AccessController controller )
     {
-        _currentController = AccessControllerHome.findByPrimaryKey( idAccessControl );
-        return SpringContextService.getBean( _currentController.getType( ) );
-    }
-
-    private boolean isAntsAccessController( IAccessControllerType controllerType )
-    {
-        return ( controllerType instanceof SlotsNumberAccessControllerType );
-    }
-
-    public XPage validateController( HttpServletRequest request, SlotsNumberAccessControllerType controllerType )
-    {
-        String validationResult = controllerType.validate( request, _currentController );
+        String validationResult = controllerType.validate( request, controller );
 
         if ( validationResult == null )
         {

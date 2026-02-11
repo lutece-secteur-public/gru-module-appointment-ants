@@ -1,3 +1,7 @@
+-- liquibase formatted sql
+-- changeset lutece-global-pom:init_core_ants.sql
+-- preconditions onFail:MARK_RAN onError:WARN
+
 --
 -- Site property : add editable single-line text field for ANTS TOKEN
 --
