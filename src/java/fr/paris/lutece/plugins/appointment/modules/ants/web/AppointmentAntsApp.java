@@ -38,8 +38,11 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,8 +54,11 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
+import fr.paris.lutece.portal.web.cdi.mvc.Models;
 import fr.paris.lutece.portal.web.xpages.XPage;
 
+@RequestScoped
+@Named( "appointment-ants.xpage.appointmentants" )
 @Controller( xpageName = AppointmentAntsApp.XPAGE_NAME, pageTitleI18nKey = "module.appointment.ants.pageTitle", pagePathI18nKey = "module.appointment.ants.pagePathLabel" )
 public class AppointmentAntsApp extends MVCApplication
 {
@@ -109,6 +115,9 @@ public class AppointmentAntsApp extends MVCApplication
     private static final String CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME = AppPropertiesService
             .getProperty( PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY );
 
+    @Inject
+    private Models _models;
+
     /**
      * Returns the content of the page preDemandeForm.
      *
@@ -119,8 +128,6 @@ public class AppointmentAntsApp extends MVCApplication
     @View( value = VIEW_PREDEMANDEFORM, defaultView = true )
     public XPage viewPreDemandeForm( HttpServletRequest request )
     {
-        Map<String, Object> model = getModel( );
-
         String dateTime = request.getParameter( PARAMETER_DATE_TIME );
         String idForm = request.getParameter( PARAMETER_ID_FORM );
         String nbPlacesToTake = request.getParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
@@ -128,26 +135,26 @@ public class AppointmentAntsApp extends MVCApplication
 
         if ( dateTime != null )
         {
-            model.put( MARKER_STARTING_DATE_TIME, dateTime );
+            _models.put( MARKER_STARTING_DATE_TIME, dateTime );
         }
 
         if ( idForm != null )
         {
-            model.put( MARKER_ID_FORM, idForm );
+            _models.put( MARKER_ID_FORM, idForm );
         }
 
         if ( nbPlacesToTake != null )
         {
-            model.put( MARKER_NB_PLACES_TO_TAKE, nbPlacesToTake );
+            _models.put( MARKER_NB_PLACES_TO_TAKE, nbPlacesToTake );
 
             // Try to retrieve the predemande codes, if any was previously entered
             predemandeCodeList = PredemandeCodeUtils.getPredemandeCodeList( request, PROPERTY_ID_PREDEMANDE_CODE_PREFIX, Integer.parseInt( nbPlacesToTake ) );
         }
         if ( predemandeCodeList != null && !predemandeCodeList.isEmpty( ) )
         {
-            model.put( MARKER_LIST_ANTS_CODES, predemandeCodeList );
+            _models.put( MARKER_LIST_ANTS_CODES, predemandeCodeList );
         }
-        return getXPage( TEMPLATE_PREDEMANDEFORM, request.getLocale( ), model );
+        return getXPage( TEMPLATE_PREDEMANDEFORM, request.getLocale( ) );
     }
 
     /**

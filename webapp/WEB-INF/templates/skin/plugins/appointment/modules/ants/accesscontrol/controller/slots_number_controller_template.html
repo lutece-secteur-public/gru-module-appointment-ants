@@ -1,4 +1,13 @@
-${config.comment!}
-<br />
-<label for="slots_number_id">Nombre de slots</label>
-<input type='text' name='slots_number_id' id='slots_number_id' />
+<@cTpl>
+<@cRow>
+    <@cCol>
+        ${config.comment!}
+    </@cCol>
+</@cRow>
+<@cRow>
+    <@cCol>
+        <@cLabel for='slots_number_id' label='#i18n{module.appointment.ants.accesscontrol.slotsNumberAccessController.name}' />
+        <@cInput name='slots_number_id' id='slots_number_id' />
+    </@cCol>
+</@cRow>
+</@cTpl>

@@ -33,14 +33,15 @@
  */
 package fr.paris.lutece.plugins.appointment.modules.ants.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.paris.lutece.test.LuteceTestCase;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpSession;
+import fr.paris.lutece.test.mocks.MockHttpServletRequest;
+import fr.paris.lutece.test.mocks.MockHttpSession;
 
 public class PredemandeCodeUtilsTest extends LuteceTestCase
 {
@@ -50,14 +51,15 @@ public class PredemandeCodeUtilsTest extends LuteceTestCase
     private MockHttpServletRequest request;
     private MockHttpSession session;
 
+    @BeforeEach
     protected void setUp( ) throws Exception
     {
         super.setUp( );
         request = new MockHttpServletRequest( );
-        session = new MockHttpSession( );
-        request.setSession( session );
+        session = (MockHttpSession) request.getSession( true );
     }
 
+    @Test
     public void testGetPredemandeCodeList( )
     {
         request.addParameter( "predemande_code_1", "TEST000001" );
@@ -71,6 +73,7 @@ public class PredemandeCodeUtilsTest extends LuteceTestCase
         assertEquals( "TEST000002", predemandeCodeList.get( 1 ) );
     }
 
+    @Test
     public void testInsertPredemandeCodesInSession( )
     {
 
@@ -82,6 +85,7 @@ public class PredemandeCodeUtilsTest extends LuteceTestCase
         assertEquals( "TEST000001,TEST000002", session.getAttribute( "APPOINTMENT_CODE_PREDEMANDE" ) );
     }
 
+    @Test
     public void testHasUniqueValues( )
     {
         List<String> predemandeCodesList = new ArrayList<>( );

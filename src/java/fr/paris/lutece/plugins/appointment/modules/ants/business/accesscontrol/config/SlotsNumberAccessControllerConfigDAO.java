@@ -37,6 +37,11 @@ import fr.paris.lutece.plugins.accesscontrol.business.config.IAccessControllerCo
 import fr.paris.lutece.plugins.accesscontrol.util.AccessControlUtils;
 import fr.paris.lutece.util.sql.DAOUtil;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
+
+@ApplicationScoped
+@Named( SlotsNumberAccessControllerConfigDAO.BEAN_NAME )
 public class SlotsNumberAccessControllerConfigDAO implements IAccessControllerConfigDAO<SlotsNumberAccessControllerConfig>
 {
     public static final String BEAN_NAME = "accesscontrol.slotsNumberAccessControllerConfigDAO";

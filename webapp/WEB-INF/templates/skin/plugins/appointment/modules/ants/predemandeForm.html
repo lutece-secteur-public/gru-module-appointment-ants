@@ -1,74 +1,59 @@
-<div class="row currentStepTitleRow">
-	<div class="col-xs-12">
-		<div class="container">
-			<h2 class="current stepTitle" id="step1">
-				<span class="current stepTitleNumber">1</span>
-				<span
-						style="display:inline-block;overflow:hidden;width:80%;vertical-align:middle">#i18n{module.appointment.ants.appointmenttitresearch.form.legend}</span>
-			</h2>
-		</div>
-	</div>
-</div>
-<div class="row currentStepContentRow">
-	<div class="col-xs-12">
-		<div class="container" id="current_step">
-			<form method="post" class="form-horizontal"
-				  action="jsp/site/Portal.jsp?page=appointmentants&action=presearch">
-				<@messages errors=errors />
-				<input name="page" value="appointmentants" type="hidden">
-				<input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden">
-				<input name="id_form" id="id_form" value="${id_form!''}" type="hidden">
-				<div class="row">
-					<div class="col-xs-12 col-sm-6">
-						<div class="col-xs-12 formGroupContainer">
-							<div class="form-group" id="nbPlacesToTakeGroup">
-								<label
-										class="col-xs-12 col-sm-4 control-label">#i18n{module.appointment.ants.predemandenumber.label}
-								</label>
-								<div class="col-xs-12 col-sm-8">
-									<input type="number" class="form-control" id="nbPlacesToTake" name="nbPlacesToTake"
-										   min="1" max="6" step="1" value="${nbPlacesToTake?default(1)}" title=""
-										   oninput="displayInputsFromAntsModuleEvent(event)"
-										   required style="width:25%;">
-									<p class=""><small>#i18n{module.appointment.ants.predemandenumber.help}</small> </p>
-								</div>
-							</div>
-							<div class="form-group" id="form-group-default">
-								<label class="col-xs-12 col-sm-4 control-label"
-									   id="label-default">#i18n{module.appointment.ants.predemandeserial.label_default}</label>
-								<div class="col-xs-12 col-sm-8">
-									<input type="text" class="form-control" name="predemande_code_1"
-										   id="predemande_code_1" pattern="[A-Z0-9]{10}" maxlength=10 required
-										   value="${(list_ants_codes[0])!''}"
-										   oninvalid="setCustomValidityMessage(id)"
-										   oninput="setCustomValidity('')"/>
-									<p class="help-text">
-										<small>#i18n{module.appointment.ants.predemandeserial.help} <a
-												href="https://ants.gouv.fr/"> ants.gouv.fr</a> </small>
-									<div id="warning-message" style="color: red;"></div>
-								</div>
-							</div>
-							<!-- Dynamically added containers will be rendered here -->
-							<div class="form-group" id="form-group-btn">
-								<div class="col-xs-12 col-sm-6 col-md-6 col-sm-offset-6 col-md-offset-6 text-right">
-									<button class="btn btn-primary" type="submit" name="action_presearch">
-										<i class="fa fa-check me-1 " aria-hidden="true"></i> Valider
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-xs-12 col-sm-6">
-						<div class="formGroupContainer" id="message-search"></div>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
+<@cContainer>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-3" id="step1">
+                <span class="badge bg-primary me-2">1</span>
+                <span class="d-inline-block overflow-hidden align-middle" style="width:80%">#i18n{module.appointment.ants.appointmenttitresearch.form.legend}</span>
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <form method="post" action="jsp/site/Portal.jsp?page=appointmentants&action=presearch">
+                <#if (errors!)?has_content>
+                    <#list (errors![]) as error>
+                        <@cAlert class='danger'>${error.message}</@cAlert>
+                    </#list>
+                </#if>
+                <input name="page" value="appointmentants" type="hidden">
+                <input name="starting_date_time" id="starting_date_time" value="${starting_date_time!''}" type="hidden">
+                <input name="id_form" id="id_form" value="${id_form!''}" type="hidden">
+                <div class="row">
+                    <div class="col-12 col-sm-6">
+                        <div class="mb-3" id="nbPlacesToTakeGroup">
+                            <label class="form-label" for="nbPlacesToTake">#i18n{module.appointment.ants.predemandenumber.label}</label>
+                            <input type="number" class="form-control" id="nbPlacesToTake" name="nbPlacesToTake"
+                                   min="1" max="6" step="1" value="${nbPlacesToTake!1}" title=""
+                                   required style="width:25%;">
+                            <div class="form-text"><small>#i18n{module.appointment.ants.predemandenumber.help}</small></div>
+                        </div>
+                        <div class="mb-3" id="form-group-default">
+                            <label class="form-label" id="label-default" for="predemande_code_1">#i18n{module.appointment.ants.predemandeserial.label_default}</label>
+                            <input type="text" class="form-control" name="predemande_code_1"
+                                   id="predemande_code_1" pattern="[A-Z0-9]{10}" maxlength="10" required
+                                   value="${(list_ants_codes[0])!''}"/>
+                            <div class="form-text">
+                                <small>#i18n{module.appointment.ants.predemandeserial.help} <a href="https://ants.gouv.fr/">ants.gouv.fr</a></small>
+                            </div>
+                            <div id="warning-message" class="text-danger"></div>
+                        </div>
+                        <div id="dynamic-inputs-container"></div>
+                        <div class="mb-3 text-end" id="form-group-btn">
+                            <button class="btn btn-primary" type="submit" name="action_presearch">
+                                <i class="ti ti-check me-1" aria-hidden="true"></i> #i18n{portal.util.labelValidate}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <div id="message-search"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</@cContainer>
 
 <script>
-
     const labels = [
         "#i18n{module.appointment.ants.predemandeserial.label_default}",
         "#i18n{module.appointment.ants.predemandeserial.label_1}",
@@ -79,125 +64,89 @@
         "#i18n{module.appointment.ants.predemandeserial.label_6}"
     ];
 
-    const inputElementType = "text";
-    const inputElementNameSuffix = "predemande_code_";
-    const inputElementPattern = "[A-Z0-9]{10}";
-    const divTagName = "div";
-    const labelTagName = "label";
-    const inputTagName = "input";
-    const helptTextClassName = "help-text";
-    const antsLink = "https://ants.gouv.fr";
-    const firstPartAntsPlatformLink = '<a href="';
-    const lastPartAntsPlatformLink = '">ants.gouv.fr</a>';
-    const predemandeInputHelpMassage = "#i18n{module.appointment.ants.predemandeserial.help}";
-    const erroMessage = "#i18n{module.appointment.ants.predemandeForm.erroMessage}";
-    const customValidityMessage = "#i18n{module.appointment.ants.predemandeForm.customValidityMessage}";
+    const INPUT_TYPE = "text";
+    const INPUT_NAME_PREFIX = "predemande_code_";
+    const INPUT_PATTERN = "[A-Z0-9]{10}";
+    const ANTS_LINK = "https://ants.gouv.fr";
+    const HELP_MESSAGE = "#i18n{module.appointment.ants.predemandeserial.help}";
+    const ERROR_MESSAGE = "#i18n{module.appointment.ants.predemandeForm.erroMessage}";
+    const CUSTOM_VALIDITY_MESSAGE = "#i18n{module.appointment.ants.predemandeForm.customValidityMessage}";
 
-    function setCustomValidityMessage(idN) {
-        var inputElement = document.getElementById(idN);
-
+    function setCustomValidityMessage(inputId) {
+        const inputElement = document.getElementById(inputId);
         if (inputElement) {
-            inputElement.setCustomValidity(customValidityMessage);
+            inputElement.setCustomValidity(CUSTOM_VALIDITY_MESSAGE);
         }
     }
 
-    function predemandeCodeInput(inputValue, inputContainer, labelDefault) {
+    function predemandeCodeInput(inputValue, labelDefault) {
+        const listAntsCodes = [<#if list_ants_codes??><#list list_ants_codes as code>'${code}',</#list></#if>];
+        const dynamicContainer = document.getElementById('dynamic-inputs-container');
 
-		// Retrieve the list of ANTS codes if they were entered previously
-		var listAntsCodes = [<#if list_ants_codes??><#list list_ants_codes as code>'${code}',</#list></#if>];
+        // Clear previously added dynamic inputs
+        dynamicContainer.innerHTML = '';
 
-        // Select all elements with class "form-group"
-        var formGroups = document.querySelectorAll('.form-group');
-
-        // Loop through each form-group element and remove it if it's not form-group-btn
-        for (var i = 2; i < formGroups.length; i++) {
-            var id = formGroups[i].getAttribute('id');
-            if (id !== 'form-group-btn') {
-                formGroups[i].parentNode.removeChild(formGroups[i]);
-            }
-        }
-
-        // handle label-default
+        // Update label-default text
         labelDefault.textContent = labels[inputValue > 1 ? 1 : 0];
 
         // Create additional input elements based on the entered number
         const fragment = document.createDocumentFragment();
         for (let i = 2; i <= inputValue; i++) {
+            const formGroupDiv = document.createElement('div');
+            formGroupDiv.classList.add('mb-3');
 
-            const formGroupDiv = document.createElement(divTagName);
-            formGroupDiv.classList.add("form-group");
-
-            const inputLabel = document.createElement(labelTagName);
+            const inputLabel = document.createElement('label');
             inputLabel.textContent = labels[i];
-            inputLabel.classList.add('col-xs-12', 'col-sm-4', 'control-label');
+            inputLabel.classList.add('form-label');
+            inputLabel.setAttribute('for', INPUT_NAME_PREFIX + i);
 
-            const inputWrapper = document.createElement(divTagName);
-            inputWrapper.classList.add('col-xs-12', 'col-sm-8');
-
-            const inputElement = document.createElement(inputTagName);
-            inputElement.type = inputElementType;
-            inputElement.classList.add("form-control");
-            inputElement.name = inputElementNameSuffix.concat(i);
-            inputElement.id = inputElementNameSuffix.concat(i);
-            inputElement.pattern = inputElementPattern;
-            inputElement.maxLength=10;
+            const inputElement = document.createElement('input');
+            inputElement.type = INPUT_TYPE;
+            inputElement.classList.add('form-control');
+            inputElement.name = INPUT_NAME_PREFIX + i;
+            inputElement.id = INPUT_NAME_PREFIX + i;
+            inputElement.pattern = INPUT_PATTERN;
+            inputElement.maxLength = 10;
             inputElement.required = true;
+            inputElement.value = listAntsCodes[i - 1] || '';
 
-            inputWrapper.appendChild(inputElement);
-
-            // Set the application number value in the input field
-            if(listAntsCodes[i-1]) {
-				inputElement.value = listAntsCodes[i-1];
-			}
-			else {
-				inputElement.value = "";
-			}
-
-            var linkToAntsPlateform = firstPartAntsPlatformLink.concat(antsLink).concat(lastPartAntsPlatformLink);
-
-            const helpText = document.createElement("p");
-            helpText.classList.add(helptTextClassName);
-            const helpTextSmall = document.createElement("small");
-            helpTextSmall.innerHTML = predemandeInputHelpMassage.concat(" ").concat(linkToAntsPlateform);
+            const helpText = document.createElement('div');
+            helpText.classList.add('form-text');
+            const helpTextSmall = document.createElement('small');
+            helpTextSmall.innerHTML = HELP_MESSAGE + ' <a href="' + ANTS_LINK + '">ants.gouv.fr</a>';
             helpText.appendChild(helpTextSmall);
-            inputWrapper.appendChild(helpText);
 
             formGroupDiv.appendChild(inputLabel);
-            formGroupDiv.appendChild(inputWrapper);
+            formGroupDiv.appendChild(inputElement);
+            formGroupDiv.appendChild(helpText);
 
             fragment.appendChild(formGroupDiv);
 
-            inputElement.oninvalid = function() {
+            inputElement.addEventListener('invalid', () => {
                 setCustomValidityMessage(inputElement.id);
-            };
+            });
 
-            inputElement.oninput = function() {
+            inputElement.addEventListener('input', () => {
                 inputElement.setCustomValidity('');
-            };
+            });
         }
 
-        inputContainer.parentNode.insertBefore(fragment, inputContainer.nextSibling);
-
+        dynamicContainer.appendChild(fragment);
     }
 
     function displayInputsFromAntsUrlParameterValue() {
         const inputValue = document.getElementById('nbPlacesToTake').value;
-        const inputContainer = document.getElementById('form-group-default');
         const labelDefault = document.getElementById('label-default');
-		if (inputValue <= 6) {
-			predemandeCodeInput(inputValue, inputContainer, labelDefault);
-		} else {
-            alert(erroMessage);
-		}
+        if (inputValue <= 6) {
+            predemandeCodeInput(inputValue, labelDefault);
+        } else {
+            alert(ERROR_MESSAGE);
+        }
     }
-
-    displayInputsFromAntsUrlParameterValue();
 
     function displayInputsFromAntsModuleEvent(event) {
         const group = document.getElementById('nbPlacesToTakeGroup');
-        const inputNbToTake = document.getElementById('nbPlacesToTake');
-        const inputValue = parseInt(event.target.value);
-        const inputContainer = document.getElementById('form-group-default');
+        const inputValue = parseInt(event.target.value, 10);
         const labelDefault = document.getElementById('label-default');
         const helpBlock = document.getElementById('help-block');
 
@@ -205,24 +154,42 @@
             if (helpBlock) {
                 helpBlock.remove();
             }
-            group.classList.remove('has-warning');
-            predemandeCodeInput(inputValue, inputContainer, labelDefault);
+            group.classList.remove('border-warning');
+            predemandeCodeInput(inputValue, labelDefault);
         } else {
             if (!helpBlock) {
                 const errorElement = document.createElement('span');
-                errorElement.setAttribute("id", "help-block");
-                errorElement.classList.add("help-block");
-                errorElement.textContent = erroMessage;
+                errorElement.id = 'help-block';
+                errorElement.classList.add('text-danger', 'd-block', 'mb-2');
+                errorElement.textContent = ERROR_MESSAGE;
                 group.prepend(errorElement);
             }
-            group.classList.add('has-warning');
+            group.classList.add('border-warning');
             event.target.value = 1;
-            predemandeCodeInput(1, inputContainer, labelDefault);
+            predemandeCodeInput(1, labelDefault);
         }
     }
 
-    $(function () {
-        $('#message-search').html($('#searchmessage').html());
+    // Initialize on page load
+    displayInputsFromAntsUrlParameterValue();
+
+    // Bind event listener for number input changes
+    document.getElementById('nbPlacesToTake').addEventListener('input', displayInputsFromAntsModuleEvent);
+
+    // Bind custom validity for the first predemande code input
+    document.getElementById('predemande_code_1').addEventListener('invalid', function() {
+        setCustomValidityMessage(this.id);
+    });
+    document.getElementById('predemande_code_1').addEventListener('input', function() {
+        this.setCustomValidity('');
     });
 
+    // Copy search message content
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchMessage = document.getElementById('searchmessage');
+        const messageSearch = document.getElementById('message-search');
+        if (searchMessage && messageSearch) {
+            messageSearch.innerHTML = searchMessage.innerHTML;
+        }
+    });
 </script>
