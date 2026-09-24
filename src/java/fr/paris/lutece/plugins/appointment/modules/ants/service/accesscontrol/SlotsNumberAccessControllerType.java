@@ -51,6 +51,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.math.NumberUtils;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -139,23 +141,15 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
             return null;
         }
 
-        String strNbPlacesToTake = request.getParameter( PARAMETER_SLOTS_NUMBER );
-        int nNbPlacesToTake = -1;
+        int nNbPlacesToTake = NumberUtils.toInt( request.getParameter( PARAMETER_SLOTS_NUMBER ), -1 );
 
-        if ( strNbPlacesToTake != null )
+        if ( nNbPlacesToTake == 0 )
         {
-            nNbPlacesToTake = Integer.parseInt( strNbPlacesToTake );
-            /* mono slot appointment case */
-            if ( nNbPlacesToTake == 0 )
-            {
-                nNbPlacesToTake = 1;
-            }
+            nNbPlacesToTake = 1;
         }
 
         if ( nNbPlacesToTake > -1 )
         {
-
-            /* Value entered by the user in the Controller View */
             HttpSession session = request.getSession( );
 
             if ( session == null )
@@ -165,7 +159,6 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
 
             int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession( session, "," );
 
-            // If there are more slots taken than ANTS Application numbers
             if ( nNbPlacesToTake != nbAntsApplications )
             {
                 return config.getErrorMessage( );
