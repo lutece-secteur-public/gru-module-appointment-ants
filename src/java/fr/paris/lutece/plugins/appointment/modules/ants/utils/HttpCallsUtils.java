@@ -39,6 +39,7 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.httpaccess.HttpAccess;
 import fr.paris.lutece.util.httpaccess.HttpAccessService;
 import fr.paris.lutece.util.httpaccess.HttpClientConfiguration;
+import fr.paris.lutece.util.httpaccess.PropertiesHttpClientConfiguration;
 import fr.paris.lutece.util.httpaccess.SimpleResponseValidator;
 
 /**
@@ -101,8 +102,7 @@ public class HttpCallsUtils
             return new HttpAccess( );
         }
 
-        // Copy the content of the current HttpAccessService configuration
-        HttpClientConfiguration customConfiguration = HttpAccessService.getInstance( ).getHttpClientConfiguration( );
+        HttpClientConfiguration customConfiguration = new PropertiesHttpClientConfiguration( );
 
         // Modify the configuration to set custom timeout values.
         // If a timeout value specified is null, then the default value is used
