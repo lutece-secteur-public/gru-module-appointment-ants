@@ -100,4 +100,18 @@ public class PredemandeCodeUtilsTest extends LuteceTestCase
         // Now two values in the list are the same, so we expect the assertion to "fail"
         assertFalse( PredemandeCodeUtils.hasUniqueValues( predemandeCodesList ) );
     }
+
+    /**
+     * Only ten digits or uppercase letters make an ANTS code: anything else is refused before the ANTS API is called.
+     */
+    @Test
+    public void testIsValidCode( )
+    {
+        assertTrue( PredemandeCodeUtils.isValidCode( "TEST000001" ) );
+        assertFalse( PredemandeCodeUtils.isValidCode( null ) );
+        assertFalse( PredemandeCodeUtils.isValidCode( "test000001" ) );
+        assertFalse( PredemandeCodeUtils.isValidCode( "TEST00001" ) );
+        assertFalse( PredemandeCodeUtils.isValidCode( "TEST0000012" ) );
+        assertFalse( PredemandeCodeUtils.isValidCode( "TEST00000'" ) );
+    }
 }

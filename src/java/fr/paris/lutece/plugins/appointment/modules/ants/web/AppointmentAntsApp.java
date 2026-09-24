@@ -34,7 +34,9 @@
 package fr.paris.lutece.plugins.appointment.modules.ants.web;
 
 import java.io.IOException;
-import java.util.Hashtable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +44,9 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import fr.paris.lutece.plugins.appointment.modules.ants.common.RequestParameters;
 import fr.paris.lutece.plugins.appointment.modules.ants.service.PreDemandeValidationService;
@@ -110,6 +112,8 @@ public class AppointmentAntsApp extends MVCApplication
     private static final String MARKER_ID_FORM = "id_form";
     private static final String MARKER_NB_PLACES_TO_TAKE = "nbPlacesToTake";
     private static final String MARKER_LIST_ANTS_CODES = "list_ants_codes";
+    private static final String MARKER_MAX_PLACES_TO_TAKE = "max_places_to_take";
+    private static final int MAX_PLACES_TO_TAKE = 6;
 
     private static final String PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY = "ants.session.attribute.name";
     private static final String CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME = AppPropertiesService
@@ -119,7 +123,7 @@ public class AppointmentAntsApp extends MVCApplication
     private Models _models;
 
     /**
-     * Returns the content of the page preDemandeForm.
+     * Returns the content of the page preDemandeForm, filled with the values of the request that have the expected format.
      *
      * @param request
      *            The HTTP request
@@ -128,118 +132,156 @@ public class AppointmentAntsApp extends MVCApplication
     @View( value = VIEW_PREDEMANDEFORM, defaultView = true )
     public XPage viewPreDemandeForm( HttpServletRequest request )
     {
-        String dateTime = request.getParameter( PARAMETER_DATE_TIME );
-        String idForm = request.getParameter( PARAMETER_ID_FORM );
-        String nbPlacesToTake = request.getParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
-        List<String> predemandeCodeList = null;
+        int nNbPlacesToTake = getNbPlacesToTake( request );
+        String strDateTime = getDateTime( request );
+        String strIdForm = getIdForm( request );
 
-        if ( dateTime != null )
+        if ( strDateTime != null )
         {
-            _models.put( MARKER_STARTING_DATE_TIME, dateTime );
+            _models.put( MARKER_STARTING_DATE_TIME, strDateTime );
         }
+        if ( strIdForm != null )
+        {
+            _models.put( MARKER_ID_FORM, strIdForm );
+        }
+        _models.put( MARKER_NB_PLACES_TO_TAKE, nNbPlacesToTake );
+        _models.put( MARKER_MAX_PLACES_TO_TAKE, MAX_PLACES_TO_TAKE );
+        _models.put( MARKER_LIST_ANTS_CODES, PredemandeCodeUtils.getPredemandeCodeList( request, PROPERTY_ID_PREDEMANDE_CODE_PREFIX, nNbPlacesToTake )
+                .stream( ).map( code -> PredemandeCodeUtils.isValidCode( code ) ? code : StringUtils.EMPTY ).toList( ) );
 
-        if ( idForm != null )
-        {
-            _models.put( MARKER_ID_FORM, idForm );
-        }
-
-        if ( nbPlacesToTake != null )
-        {
-            _models.put( MARKER_NB_PLACES_TO_TAKE, nbPlacesToTake );
-
-            // Try to retrieve the predemande codes, if any was previously entered
-            predemandeCodeList = PredemandeCodeUtils.getPredemandeCodeList( request, PROPERTY_ID_PREDEMANDE_CODE_PREFIX, Integer.parseInt( nbPlacesToTake ) );
-        }
-        if ( predemandeCodeList != null && !predemandeCodeList.isEmpty( ) )
-        {
-            _models.put( MARKER_LIST_ANTS_CODES, predemandeCodeList );
-        }
         return getXPage( TEMPLATE_PREDEMANDEFORM, request.getLocale( ) );
     }
 
     /**
-     * Redirects to main carto pview
+     * Checks the pre-demand codes against the ANTS API, then redirects to the booking of the chosen slot (user coming
+     * from the ANTS web site) or to the appointment search.
      *
      * @param request
      *            The HTTP request
      * @return The view
+     * @throws IOException
+     *             If the redirection fails
      */
     @Action( value = ACTION_PRE_SEARCH )
     public XPage presearch( HttpServletRequest request ) throws IOException
     {
-        // The value of these parameters is retrieved when the user is coming from the ANTS' website
-        String nbPlacesToTake = request.getParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
-        String dateTime = request.getParameter( PARAMETER_DATE_TIME );
-        String idForm = request.getParameter( PARAMETER_ID_FORM );
+        int nNbPlacesToTake = getNbPlacesToTake( request );
+        String strDateTime = getDateTime( request );
+        String strIdForm = getIdForm( request );
 
-        List<String> predemandeCodeList = PredemandeCodeUtils.getPredemandeCodeList( request, PROPERTY_ID_PREDEMANDE_CODE_PREFIX,
-                Integer.parseInt( nbPlacesToTake ) );
+        List<String> predemandeCodeList = PredemandeCodeUtils.getPredemandeCodeList( request, PROPERTY_ID_PREDEMANDE_CODE_PREFIX, nNbPlacesToTake );
 
-        Map<String, String> additionalParameters = new Hashtable<>( );
-        additionalParameters.put( PARAMETER_NUMBER_OF_PLACES_TO_TAKE, nbPlacesToTake );
-        additionalParameters.put( PARAMETER_DATE_TIME, dateTime );
-        additionalParameters.put( PARAMETER_ID_FORM, idForm );
-
-        // Add the predemande code in the parameters, so they can be retrieved later if necessary
-        for ( int i = 1; i <= Integer.parseInt( nbPlacesToTake ); i++ )
+        Map<String, String> additionalParameters = new HashMap<>( );
+        additionalParameters.put( PARAMETER_NUMBER_OF_PLACES_TO_TAKE, String.valueOf( nNbPlacesToTake ) );
+        if ( strDateTime != null )
         {
-            String inputIdValue = PROPERTY_ID_PREDEMANDE_CODE_PREFIX.concat( String.valueOf( i ) );
-            additionalParameters.put( inputIdValue, request.getParameter( inputIdValue ) );
+            additionalParameters.put( PARAMETER_DATE_TIME, strDateTime );
+        }
+        if ( strIdForm != null )
+        {
+            additionalParameters.put( PARAMETER_ID_FORM, strIdForm );
+        }
+        for ( int i = 0; i < predemandeCodeList.size( ); i++ )
+        {
+            if ( PredemandeCodeUtils.isValidCode( predemandeCodeList.get( i ) ) )
+            {
+                additionalParameters.put( PROPERTY_ID_PREDEMANDE_CODE_PREFIX + ( i + 1 ), predemandeCodeList.get( i ) );
+            }
         }
 
-        // If there's a date in the parameters, then the current user is coming from the ANTS' website
-        boolean isUserFromAnts = StringUtils.isNotBlank( dateTime );
+        if ( predemandeCodeList.size( ) != nNbPlacesToTake || !predemandeCodeList.stream( ).allMatch( PredemandeCodeUtils::isValidCode ) )
+        {
+            addError( PROPERTY_ERROR_MESSAGE, request.getLocale( ) );
+            return redirect( request, VIEW_PREDEMANDEFORM, additionalParameters );
+        }
 
-        // Check if the predemande codes are unique. If they aren't, then display an error on the page
         if ( !PredemandeCodeUtils.hasUniqueValues( predemandeCodeList ) )
         {
             addError( PROPERTY_PREDEMANDE_CODES_NOT_UNIQUE_ERROR_MESSAGE, request.getLocale( ) );
             return redirect( request, VIEW_PREDEMANDEFORM, additionalParameters );
         }
 
-        // Check if all the ANTS codes are valid
-        boolean isAllCodesValid = PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments( predemandeCodeList );
-
-        // If one ore more codes are not valid, display an error message to the user
-        if ( !isAllCodesValid )
+        if ( !PreDemandeValidationService.checkPredemandeCodesValidationAndAppointments( predemandeCodeList ) )
         {
             addError( PROPERTY_ERROR_MESSAGE, request.getLocale( ) );
             return redirect( request, VIEW_PREDEMANDEFORM, additionalParameters );
         }
-        else
+
+        PredemandeCodeUtils.insertPredemandeCodesInSession( request.getSession( true ), predemandeCodeList, ",",
+                CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
+
+        RequestParameters params = new RequestParameters( );
+        params.setNbPlacesToTakeValue( String.valueOf( nNbPlacesToTake ) );
+
+        if ( strDateTime != null )
         {
-            // Save the predemande codes in the current session
-            HttpSession session = request.getSession( true );
-            PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, ",", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
-
-            RequestParameters params = new RequestParameters( );
-            params.setNbPlacesToTakeValue( String.valueOf( nbPlacesToTake ) );
-            String url;
-
-            // Codes are valid and the user comes from the ANTS web site
-            if ( isUserFromAnts )
-            {
-                params.setFormIdParameter( PARAMETER_ID_FORM );
-                params.setDateTimeParameter( PARAMETER_DATE_TIME );
-                params.setDateTimeValue( dateTime );
-                params.setNbPlacesToTakeParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
-                params.setAnchorParameter( PARAMETER_ANCHOR );
-                params.setAnchorValue( STEP_3 );
-                url = PredemandeCodeUtils.constructRedirectionUrl( request, APPOINTMENT_PLUGIN_XPAGE_NAME, APPOINTMENT_PLUGIN_APPOINTMENTFORM_VIEW_NAME,
-                        params );
-
-                return redirect( request, url );
-            }
-            else
-            {
-                // Codes are valid and the user does not come from the ANTS web site
-                params.setCategoryParameter( PARAMETER_CATEGORIE );
-                params.setCategoryValue( PARAMETER_CATEGORIE_TITRES );
-                params.setNbPlacesToTakeParameter( PARAMETER_NB_CONSECUTIVE_SLOTS );
-                url = PredemandeCodeUtils.constructRedirectionUrl( request, APPOINTMENTSEARCH_PLUGIN_XPAGE_NAME, APPOINTMENTSEARCH_PLUGIN_SEARCH_VIEW_NAME,
-                        params );
-                return redirect( request, url );
-            }
+            params.setFormIdParameter( PARAMETER_ID_FORM );
+            params.setDateTimeParameter( PARAMETER_DATE_TIME );
+            params.setDateTimeValue( strDateTime );
+            params.setNbPlacesToTakeParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE );
+            params.setAnchorParameter( PARAMETER_ANCHOR );
+            params.setAnchorValue( STEP_3 );
+            return redirect( request,
+                    PredemandeCodeUtils.constructRedirectionUrl( request, APPOINTMENT_PLUGIN_XPAGE_NAME, APPOINTMENT_PLUGIN_APPOINTMENTFORM_VIEW_NAME, params ) );
         }
+
+        params.setCategoryParameter( PARAMETER_CATEGORIE );
+        params.setCategoryValue( PARAMETER_CATEGORIE_TITRES );
+        params.setNbPlacesToTakeParameter( PARAMETER_NB_CONSECUTIVE_SLOTS );
+        return redirect( request,
+                PredemandeCodeUtils.constructRedirectionUrl( request, APPOINTMENTSEARCH_PLUGIN_XPAGE_NAME, APPOINTMENTSEARCH_PLUGIN_SEARCH_VIEW_NAME, params ) );
+    }
+
+    /**
+     * Get the number of people of the request, between 1 and the maximum; 1 when the request carries no valid number.
+     *
+     * @param request
+     *            The HTTP request
+     * @return The number of people
+     */
+    private static int getNbPlacesToTake( HttpServletRequest request )
+    {
+        int nNbPlaces = NumberUtils.toInt( request.getParameter( PARAMETER_NUMBER_OF_PLACES_TO_TAKE ), 1 );
+
+        return ( nNbPlaces >= 1 && nNbPlaces <= MAX_PLACES_TO_TAKE ) ? nNbPlaces : 1;
+    }
+
+    /**
+     * Get the starting date and time of the slot chosen on the ANTS web site.
+     *
+     * @param request
+     *            The HTTP request
+     * @return The date and time in the ISO format, or null when the request carries none or an invalid one
+     */
+    private static String getDateTime( HttpServletRequest request )
+    {
+        String strDateTime = request.getParameter( PARAMETER_DATE_TIME );
+
+        if ( StringUtils.isBlank( strDateTime ) )
+        {
+            return null;
+        }
+        try
+        {
+            return LocalDateTime.parse( strDateTime ).toString( );
+        }
+        catch( DateTimeParseException e )
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Get the id of the appointment form chosen on the ANTS web site.
+     *
+     * @param request
+     *            The HTTP request
+     * @return The id, or null when the request carries none or a non numeric one
+     */
+    private static String getIdForm( HttpServletRequest request )
+    {
+        String strIdForm = request.getParameter( PARAMETER_ID_FORM );
+
+        return StringUtils.isNumeric( strIdForm ) ? strIdForm : null;
     }
 }

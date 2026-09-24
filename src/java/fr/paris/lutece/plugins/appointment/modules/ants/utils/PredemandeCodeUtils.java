@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -54,6 +55,8 @@ public class PredemandeCodeUtils
 
     private static final String CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME = AppPropertiesService
             .getProperty( PROPERTY_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME_KEY );
+
+    private static final Pattern PATTERN_PREDEMANDE_CODE = Pattern.compile( "[A-Z0-9]{10}" );
 
     private PredemandeCodeUtils( )
     {
@@ -184,6 +187,18 @@ public class PredemandeCodeUtils
         }
 
         return nbTotalPredemande;
+    }
+
+    /**
+     * Check that a pre-demand code has the ANTS format: ten digits or uppercase letters.
+     * 
+     * @param strCode
+     *            The code to check
+     * @return True if the code has the ANTS format
+     */
+    public static boolean isValidCode( String strCode )
+    {
+        return strCode != null && PATTERN_PREDEMANDE_CODE.matcher( strCode ).matches( );
     }
 
     /**
