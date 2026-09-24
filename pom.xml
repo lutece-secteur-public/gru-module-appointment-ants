@@ -96,8 +96,6 @@
 
     <properties>
         <componentName>appointment-ants</componentName>
-        <jiraProjectName>APPOINTMENT-ANTS</jiraProjectName>
-        <jiraComponentId />
     </properties>
 
     <scm>
