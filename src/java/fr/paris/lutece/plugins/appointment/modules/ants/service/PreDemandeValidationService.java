@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -62,7 +64,7 @@ public class PreDemandeValidationService
 
     private static final String PROPERTY_ENDPOINT_STATUS = AppPropertiesService.getProperty( "ants.api.opt.get.status" );
     private static final String PROPERTY_API_OPT_AUTH_TOKEN_KEY = AppPropertiesService.getProperty( "ants.auth.token" );
-    private static final String PROPERTY_API_OPT_AUTH_TOKEN_VALUE = String.valueOf( DatastoreService.getDataValue( "module.appointment.ants.site_property.token" ,"") );
+    private static final String DATASTORE_KEY_AUTH_TOKEN = "module.appointment.ants.site_property.token";
     private static final String PROPERTY_ID_APPLICATION_PARAMETER = AppPropertiesService.getProperty( "ants.ids_application.parameters" );
     private static final String PROPERTY_MEETING_POINT_ID_PARAMETER = AppPropertiesService.getProperty( "ants.meeting_point_id.parameters" );
     private static final String PROPERTY_MEETING_POINT_ID_DEFAULT_VALUE = AppPropertiesService.getProperty( "ants.meeting_point_id.defaultValue" );
@@ -88,7 +90,7 @@ public class PreDemandeValidationService
     {
         Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments( codes );
 
-        if ( responseMap.isEmpty( ) )
+        if ( responseMap.isEmpty( ) || !responseMap.keySet( ).containsAll( codes ) )
         {
             return false;
         }
@@ -139,7 +141,7 @@ public class PreDemandeValidationService
         HttpAccess httpAccess = HttpCallsUtils.getHttpAccessTimeoutFromProperties( PROPERTY_SOCKET_TIMEOUT, PROPERTY_CONNECTION_TIMEOUT );
 
         Map<String, String> headers = new HashMap<>( );
-        headers.put( PROPERTY_API_OPT_AUTH_TOKEN_KEY, PROPERTY_API_OPT_AUTH_TOKEN_VALUE );
+        headers.put( PROPERTY_API_OPT_AUTH_TOKEN_KEY, DatastoreService.getDataValue( DATASTORE_KEY_AUTH_TOKEN, StringUtils.EMPTY ) );
 
         try
         {
