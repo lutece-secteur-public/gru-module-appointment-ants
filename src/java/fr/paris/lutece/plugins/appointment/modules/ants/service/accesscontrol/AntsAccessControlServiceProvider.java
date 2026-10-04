@@ -40,14 +40,16 @@ import fr.paris.lutece.plugins.accesscontrol.service.IAccessControllerType;
 import fr.paris.lutece.portal.service.message.CustomSiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.util.AppPathService;
+import fr.paris.lutece.portal.service.util.CdiHelper;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.portal.web.LocalVariables;
 import fr.paris.lutece.portal.web.xpages.XPage;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Specializes;
-import jakarta.enterprise.inject.literal.NamedLiteral;
-import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -60,11 +62,15 @@ public class AntsAccessControlServiceProvider extends AccessControlServiceProvid
 
     public static final String SITE_MESSAGE_JSP = "jsp/site/SiteMessage.jsp";
 
+    @Inject
+    @Any
+    private Instance<IAccessControllerType> _controllerTypes;
+
     @Override
     public XPage redirectToAccessControlXPage( HttpServletRequest request, int idResource, String resourceType, int idAccessControl )
     {
         AccessController controller = AccessControllerHome.findByPrimaryKey( idAccessControl );
-        IAccessControllerType controllerType = CDI.current( ).select( IAccessControllerType.class, NamedLiteral.of( controller.getType( ) ) ).get( );
+        IAccessControllerType controllerType = CdiHelper.resolve( _controllerTypes, controller.getType( ) );
 
         // If the form uses a standard AccessController
         if ( !( controllerType instanceof SlotsNumberAccessControllerType ) )
