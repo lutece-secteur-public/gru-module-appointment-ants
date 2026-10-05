@@ -1,6 +1,7 @@
 -- liquibase formatted sql
--- changeset lutece-global-pom:create_db_accesscontrol_ants.sql
+-- changeset lutece-global-pom:create_db_accesscontrol_ants.sql logicalFilePath:sql/plugins/accesscontrol/plugin/create_db_accesscontrol_ants.sql
 -- preconditions onFail:MARK_RAN onError:WARN
+-- precondition-sql-check expectedResult:1 SELECT COUNT(*) FROM accesscontrol_controller_slots_number_config WHERE 1 = 0
 
 --
 -- Structure for table accesscontrol_controller_slots_number_config
