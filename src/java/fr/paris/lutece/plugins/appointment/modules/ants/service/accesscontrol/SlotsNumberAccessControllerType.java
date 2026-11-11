@@ -161,7 +161,7 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
                 return null;
             }
 
-            int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession( session, "," );
+            int nbAntsApplications = PredemandeCodeUtils.getAmountPredemandeCodesInSession( session, ", " );
 
             // If there are more slots taken than ANTS Application numbers
             if ( _nNbPlacesToTake != nbAntsApplications )

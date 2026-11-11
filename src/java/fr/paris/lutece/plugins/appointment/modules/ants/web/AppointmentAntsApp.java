@@ -203,7 +203,7 @@ public class AppointmentAntsApp extends MVCApplication
         {
             // Save the predemande codes in the current session
             HttpSession session = request.getSession( true );
-            PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, ",", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
+            PredemandeCodeUtils.insertPredemandeCodesInSession( session, predemandeCodeList, ", ", CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
 
             RequestParameters params = new RequestParameters( );
             params.setNbPlacesToTakeValue( String.valueOf( nbPlacesToTake ) );
