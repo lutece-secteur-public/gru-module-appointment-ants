@@ -131,6 +131,24 @@ public class AppointmentAntsTemplatesRenderTest extends LuteceTestCase
     }
 
     /**
+     * Each code field is described by its help text and, after a failed check, by the error messages, and is marked
+     * invalid; the link to the ANTS web site says that it opens a new window.
+     */
+    @Test
+    public void testPredemandeFormTiesHelpAndErrorsToFields( )
+    {
+        String strHtml = renderPredemandeForm( );
+
+        String strCode1 = input( strHtml, "predemande_code_1" );
+        assertTrue( strCode1.contains( "aria-describedby=\"predemande_errors predemande_help_1\"" ), strCode1 );
+        assertTrue( strCode1.contains( "aria-invalid=\"true\"" ), strCode1 );
+        assertTrue( strHtml.contains( "id=\"predemande_errors\" tabindex=\"-1\"" ), strHtml );
+        assertTrue( strHtml.contains( "id=\"predemande_help_1\"" ), strHtml );
+        assertTrue( Pattern.compile( "<a href=\"https://ants.gouv.fr/\"[^>]*target=\"_blank\"[^>]*>.*?<span class=\"visually-hidden\">", Pattern.DOTALL )
+                .matcher( strHtml ).find( ), strHtml );
+    }
+
+    /**
      * The comment of the slots number controller, rich text entered in the back office editor, is written as HTML.
      */
     @Test
