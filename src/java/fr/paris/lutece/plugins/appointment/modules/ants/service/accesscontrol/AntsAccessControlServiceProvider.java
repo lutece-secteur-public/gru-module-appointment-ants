@@ -54,6 +54,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 @Specializes
@@ -69,20 +71,39 @@ public class AntsAccessControlServiceProvider extends AccessControlServiceProvid
     @Override
     public XPage redirectToAccessControlXPage( HttpServletRequest request, int idResource, String resourceType, int idAccessControl )
     {
-        AccessController controller = AccessControllerHome.findByPrimaryKey( idAccessControl );
-        IAccessControllerType controllerType = CdiHelper.resolve( _controllerTypes, controller.getType( ) );
+        // idAccessControl identifies the access control, not one of its controllers
+        List<AccessController> listControllers = AccessControllerHome.getAccessControllersListByAccessControlId( idAccessControl );
+        List<AccessController> listSlotsControllers = new ArrayList<>( );
+        SlotsNumberAccessControllerType slotsControllerType = null;
 
-        // If the form uses a standard AccessController
-        if ( !( controllerType instanceof SlotsNumberAccessControllerType ) )
+        for ( AccessController controller : listControllers )
+        {
+            IAccessControllerType controllerType = CdiHelper.resolve( _controllerTypes, controller.getType( ) );
+            if ( controllerType instanceof SlotsNumberAccessControllerType )
+            {
+                slotsControllerType = (SlotsNumberAccessControllerType) controllerType;
+                listSlotsControllers.add( controller );
+            }
+        }
+
+        // If the access control uses a standard AccessController
+        if ( listSlotsControllers.isEmpty( ) || listSlotsControllers.size( ) != listControllers.size( ) )
         {
             // Redirect to the standard implementation of the AccessControl XPage
             return super.redirectToAccessControlXPage( request, idResource, resourceType, idAccessControl );
         }
-        // If the form uses the specific ANTS access controller, we override the main execution
-        else
+
+        // If the access control only uses the specific ANTS access controller, we override the main execution
+        for ( AccessController controller : listSlotsControllers )
         {
-            return validateController( request, (SlotsNumberAccessControllerType) controllerType, controller );
+            XPage page = validateController( request, slotsControllerType, controller );
+            if ( page != null )
+            {
+                return page;
+            }
         }
+
+        return null;
     }
 
     public XPage validateController( HttpServletRequest request, SlotsNumberAccessControllerType controllerType, AccessController controller )
