@@ -149,6 +149,24 @@ public class AppointmentAntsTemplatesRenderTest extends LuteceTestCase
     }
 
     /**
+     * The title of the page is its only level 1 heading, and no other heading comes before it.
+     */
+    @Test
+    public void testPredemandeFormTitleIsTheLevelOneHeading( )
+    {
+        String strHtml = renderPredemandeForm( );
+
+        Matcher matcher = Pattern.compile( "<h([1-6])\\b" ).matcher( strHtml );
+        assertTrue( matcher.find( ), strHtml );
+        assertEquals( "1", matcher.group( 1 ), strHtml );
+        assertTrue( Pattern.compile( "<h1[^>]*\\bid=\"step1\"" ).matcher( strHtml ).find( ), strHtml );
+        while ( matcher.find( ) )
+        {
+            assertNotEquals( "1", matcher.group( 1 ), strHtml );
+        }
+    }
+
+    /**
      * The comment of the slots number controller, rich text entered in the back office editor, is written as HTML.
      */
     @Test
