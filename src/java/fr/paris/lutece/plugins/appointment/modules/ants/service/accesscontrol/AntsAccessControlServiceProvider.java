@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.accesscontrol.service.AccessControlServiceProvide
 import fr.paris.lutece.plugins.accesscontrol.service.IAccessControllerType;
 import fr.paris.lutece.portal.service.message.CustomSiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessage;
+import fr.paris.lutece.portal.service.template.HtmlMarkup;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.CdiHelper;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
@@ -56,6 +57,11 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import org.apache.commons.text.StringEscapeUtils;
+
+import freemarker.core.TemplateHTMLOutputModel;
 
 @ApplicationScoped
 @Specializes
@@ -122,8 +128,7 @@ public class AntsAccessControlServiceProvider extends AccessControlServiceProvid
     {
         MVCUtils.getLogger( ).error( "Validation error: {}", validationResult );
         HttpServletResponse response = LocalVariables.getResponse( );
-        SiteMessage message = new CustomSiteMessage( "Erreur de validation : ", validationResult, null, SiteMessage.TYPE_ERROR, SiteMessage.TYPE_BUTTON_BACK,
-                null );
+        SiteMessage message = new TextSiteMessage( "Erreur de validation : ", validationResult );
         HttpSession session = request.getSession( true );
         session.setAttribute( "LUTECE_PORTAL_MESSAGE", message );
         String strTarget = AppPathService.getBaseUrl( request ) + SITE_MESSAGE_JSP;
@@ -137,5 +142,33 @@ public class AntsAccessControlServiceProvider extends AccessControlServiceProvid
         }
 
         return new XPage( );
+    }
+
+    /**
+     * Site message whose text, the error message of the controller, is written as text.
+     */
+    static class TextSiteMessage extends CustomSiteMessage
+    {
+        private static final long serialVersionUID = 1L;
+
+        TextSiteMessage( String strTitle, String strText )
+        {
+            super( strTitle, strText, null, SiteMessage.TYPE_ERROR, SiteMessage.TYPE_BUTTON_BACK, null );
+        }
+
+        /**
+         * Returns the text of the message written as text.
+         *
+         * @param locale
+         *            The current locale
+         * @return The escaped text as markup
+         */
+        @Override
+        public TemplateHTMLOutputModel getMarkup( Locale locale )
+        {
+            String strText = getText( locale );
+
+            return HtmlMarkup.of( strText == null ? "" : StringEscapeUtils.escapeHtml4( strText ) );
+        }
     }
 }

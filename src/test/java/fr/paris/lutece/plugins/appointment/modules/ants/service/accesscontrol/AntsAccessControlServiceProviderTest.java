@@ -44,12 +44,16 @@ import fr.paris.lutece.plugins.accesscontrol.business.AccessControllerHome;
 import fr.paris.lutece.plugins.accesscontrol.service.AccessControlServiceProvider;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfig;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfigDAO;
+import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.web.LocalVariables;
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.test.LuteceTestCase;
 import fr.paris.lutece.test.mocks.MockHttpServletRequest;
 import fr.paris.lutece.test.mocks.MockHttpServletResponse;
+import freemarker.core.HTMLOutputFormat;
 import jakarta.enterprise.inject.spi.CDI;
+
+import java.util.Locale;
 
 /**
  * The ANTS access control service provider finds the controllers of the access control it is given, whose id differs from
@@ -134,6 +138,27 @@ public class AntsAccessControlServiceProviderTest extends LuteceTestCase
 
         assertNotNull( page );
         assertNotNull( request.getSession( ).getAttribute( SESSION_ATTRIBUTE_MESSAGE ) );
+    }
+
+    /**
+     * The error message of the controller is written as text in the site message.
+     */
+    @Test
+    public void testErrorMessageIsWrittenAsText( ) throws Exception
+    {
+        SlotsNumberAccessControllerConfig config = _dao.load( _controller.getId( ) );
+        config.setErrorMessage( "Nombre <b>incorrect</b> & \"autre\"" );
+        _dao.store( config );
+        MockHttpServletRequest request = request( "3" );
+        request.getSession( true ).setAttribute( SESSION_ATTRIBUTE_CODES, "ABCDE12345,FGHIJ67890" );
+
+        provider( ).redirectToAccessControlXPage( request, 1, "appointment", _accessControl.getId( ) );
+
+        SiteMessage message = (SiteMessage) request.getSession( ).getAttribute( SESSION_ATTRIBUTE_MESSAGE );
+        assertNotNull( message );
+        String strMarkup = HTMLOutputFormat.INSTANCE.getMarkupString( message.getMarkup( Locale.FRENCH ) );
+        assertEquals( "Nombre &lt;b&gt;incorrect&lt;/b&gt; &amp; &quot;autre&quot;", strMarkup );
+        assertEquals( SiteMessage.TYPE_ERROR, message.getType( ) );
     }
 
     private static AccessControlServiceProvider provider( )
