@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.accesscontrol.business.AccessController;
 import fr.paris.lutece.plugins.accesscontrol.business.config.IAccessControllerConfigDAO;
 import fr.paris.lutece.plugins.accesscontrol.service.AbstractPersistentAccessControllerType;
 import fr.paris.lutece.plugins.accesscontrol.service.IAccessControllerType;
-import fr.paris.lutece.plugins.appointment.business.appointment.Appointment;
+import fr.paris.lutece.plugins.appointment.web.dto.AppointmentDTO;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfig;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfigDAO;
 import fr.paris.lutece.plugins.appointment.modules.ants.utils.PredemandeCodeUtils;
@@ -71,6 +71,7 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
 
     private static final String PARAMETER_SLOTS_NUMBER = "nbPlacesToTake";
     private static final String PARAMETER_REF_APPOINTMENT = "refAppointment";
+    private static final String PARAMETER_ID_FORM = "id_form";
     private static final String PARAMETER_COMMENT = "comment";
     private static final String PARAMETER_ERROR_MESSAGE = "error_message";
 
@@ -131,9 +132,9 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
 
         if ( strRefAppointment != null )
         {
-            Appointment appointment = AppointmentService.findAppointmentByReference( strRefAppointment );
+            AppointmentDTO appointment = AppointmentService.buildAppointmentDTOFromRefAppointment( strRefAppointment );
 
-            if ( appointment == null )
+            if ( !isAppointmentOfForm( appointment, request.getParameter( PARAMETER_ID_FORM ) ) )
             {
                 return config.getErrorMessage( );
             }
@@ -169,6 +170,20 @@ public class SlotsNumberAccessControllerType extends AbstractPersistentAccessCon
             return config.getErrorMessage( );
         }
         return null;
+    }
+
+    /**
+     * Tells whether a reference given to reschedule an appointment is an appointment of the form requested.
+     *
+     * @param appointment
+     *            the appointment of the reference, null when the reference is unknown
+     * @param strIdForm
+     *            the id of the form requested
+     * @return true if the appointment belongs to the form
+     */
+    static boolean isAppointmentOfForm( AppointmentDTO appointment, String strIdForm )
+    {
+        return appointment != null && !appointment.getIsCancelled( ) && NumberUtils.toInt( strIdForm, -1 ) == appointment.getIdForm( );
     }
 
     @Override

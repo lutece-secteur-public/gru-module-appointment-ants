@@ -45,6 +45,7 @@ import fr.paris.lutece.plugins.accesscontrol.business.AccessControlResourceHome;
 import fr.paris.lutece.plugins.accesscontrol.service.AccessControlServiceProvider;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfig;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfigDAO;
+import fr.paris.lutece.plugins.appointment.web.dto.AppointmentDTO;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.web.LocalVariables;
 import fr.paris.lutece.portal.web.xpages.XPage;
@@ -196,6 +197,24 @@ public class AntsAccessControlServiceProviderTest extends LuteceTestCase
         provider( ).deleteSessionDataForResource( request, ID_FORM_FREE, RESOURCE_TYPE );
 
         assertEquals( "ABCDE12345", request.getSession( ).getAttribute( SESSION_ATTRIBUTE_CODES ) );
+    }
+
+    /**
+     * The reference given to reschedule an appointment opens the protected form only for an appointment of that form,
+     * not cancelled.
+     */
+    @Test
+    public void testRescheduleReferenceMustBeAnAppointmentOfTheForm( )
+    {
+        AppointmentDTO appointment = new AppointmentDTO( );
+        appointment.setIdForm( 5 );
+
+        assertTrue( SlotsNumberAccessControllerType.isAppointmentOfForm( appointment, "5" ) );
+        assertFalse( SlotsNumberAccessControllerType.isAppointmentOfForm( appointment, "7" ), "appointment of another form" );
+        assertFalse( SlotsNumberAccessControllerType.isAppointmentOfForm( appointment, null ), "no form in the request" );
+        assertFalse( SlotsNumberAccessControllerType.isAppointmentOfForm( null, "5" ), "unknown reference" );
+        appointment.setIsCancelled( true );
+        assertFalse( SlotsNumberAccessControllerType.isAppointmentOfForm( appointment, "5" ), "cancelled appointment" );
     }
 
     private static AccessControlServiceProvider provider( )
