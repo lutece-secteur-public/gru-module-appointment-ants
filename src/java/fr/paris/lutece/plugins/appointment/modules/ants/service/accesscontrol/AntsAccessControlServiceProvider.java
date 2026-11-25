@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.accesscontrol.business.AccessController;
 import fr.paris.lutece.plugins.accesscontrol.business.AccessControllerHome;
 import fr.paris.lutece.plugins.accesscontrol.service.AccessControlServiceProvider;
 import fr.paris.lutece.plugins.accesscontrol.service.IAccessControllerType;
+import fr.paris.lutece.plugins.appointment.modules.ants.utils.PredemandeCodeUtils;
 import fr.paris.lutece.portal.service.message.CustomSiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.template.HtmlMarkup;
@@ -110,6 +111,41 @@ public class AntsAccessControlServiceProvider extends AccessControlServiceProvid
         }
 
         return null;
+    }
+
+    /**
+     * Removes the access control data of a resource, once its booking is done; when the access control of the resource
+     * holds the ANTS slots number controller, the pre-demand codes of the session are consumed too: a new booking needs a
+     * new pre-demand check.
+     */
+    @Override
+    public void deleteSessionDataForResource( HttpServletRequest request, int idResource, String resourceType )
+    {
+        super.deleteSessionDataForResource( request, idResource, resourceType );
+        int idAccessControl = findAccessControlForResource( idResource, resourceType );
+        if ( idAccessControl > 0 && usesSlotsController( idAccessControl ) )
+        {
+            PredemandeCodeUtils.removePredemandeCodesFromSession( request.getSession( ) );
+        }
+    }
+
+    /**
+     * Tells whether an access control holds the ANTS slots number controller.
+     *
+     * @param idAccessControl
+     *            the id of the access control
+     * @return true if one of its controllers is the ANTS slots number controller
+     */
+    private boolean usesSlotsController( int idAccessControl )
+    {
+        for ( AccessController controller : AccessControllerHome.getAccessControllersListByAccessControlId( idAccessControl ) )
+        {
+            if ( CdiHelper.resolve( _controllerTypes, controller.getType( ) ) instanceof SlotsNumberAccessControllerType )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public XPage validateController( HttpServletRequest request, SlotsNumberAccessControllerType controllerType, AccessController controller )

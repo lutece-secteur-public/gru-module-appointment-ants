@@ -169,6 +169,17 @@ public class PredemandeCodeUtils
     }
 
     /**
+     * Removes the predemande codes of the session, once they were used for a booking
+     *
+     * @param session
+     *            HttpSession where the codes are saved
+     */
+    public static void removePredemandeCodesFromSession( HttpSession session )
+    {
+        session.removeAttribute( CONSTANT_PREDEMANDE_CODE_LIST_SESSION_ATTRIBUTE_NAME );
+    }
+
+    /**
      * Get the total amount of predemande codes entered by the user
      *
      * @param session

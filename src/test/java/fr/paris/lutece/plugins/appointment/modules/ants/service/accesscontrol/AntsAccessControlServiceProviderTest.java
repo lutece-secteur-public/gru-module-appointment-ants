@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.accesscontrol.business.AccessControl;
 import fr.paris.lutece.plugins.accesscontrol.business.AccessControlHome;
 import fr.paris.lutece.plugins.accesscontrol.business.AccessController;
 import fr.paris.lutece.plugins.accesscontrol.business.AccessControllerHome;
+import fr.paris.lutece.plugins.accesscontrol.business.AccessControlResourceHome;
 import fr.paris.lutece.plugins.accesscontrol.service.AccessControlServiceProvider;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfig;
 import fr.paris.lutece.plugins.appointment.modules.ants.business.accesscontrol.config.SlotsNumberAccessControllerConfigDAO;
@@ -64,6 +65,9 @@ public class AntsAccessControlServiceProviderTest extends LuteceTestCase
     private static final String SESSION_ATTRIBUTE_CODES = "APPOINTMENT_CODE_PREDEMANDE";
     private static final String SESSION_ATTRIBUTE_MESSAGE = "LUTECE_PORTAL_MESSAGE";
     private static final String ERROR_MESSAGE = "Wrong number of slots";
+    private static final String RESOURCE_TYPE = "APPOINTMENT_FORM";
+    private static final int ID_FORM_ANTS = 990001;
+    private static final int ID_FORM_FREE = 990002;
 
     private final SlotsNumberAccessControllerConfigDAO _dao = new SlotsNumberAccessControllerConfigDAO( );
     private AccessControl _otherAccessControl;
@@ -95,6 +99,7 @@ public class AntsAccessControlServiceProviderTest extends LuteceTestCase
     @Override
     protected void tearDown( ) throws Exception
     {
+        AccessControlResourceHome.removeByResource( ID_FORM_ANTS, RESOURCE_TYPE );
         _dao.delete( _controller.getId( ) );
         for ( AccessControl accessControl : new AccessControl [ ] {
                 _accessControl, _otherAccessControl
@@ -159,6 +164,38 @@ public class AntsAccessControlServiceProviderTest extends LuteceTestCase
         String strMarkup = HTMLOutputFormat.INSTANCE.getMarkupString( message.getMarkup( Locale.FRENCH ) );
         assertEquals( "Nombre &lt;b&gt;incorrect&lt;/b&gt; &amp; &quot;autre&quot;", strMarkup );
         assertEquals( SiteMessage.TYPE_ERROR, message.getType( ) );
+    }
+
+    /**
+     * The booking of a form protected by the ANTS controller ends (plugin-appointment cleans the access control data of the
+     * form): the pre-demand codes are consumed, a new booking needs a new pre-demand check.
+     */
+    @Test
+    public void testCodesAreConsumedWhenTheBookingEnds( )
+    {
+        provider( ).createOrUpdateAccessControlResource( ID_FORM_ANTS, RESOURCE_TYPE, _accessControl.getId( ) );
+        MockHttpServletRequest request = request( "1" );
+        request.getSession( true ).setAttribute( SESSION_ATTRIBUTE_CODES, "ABCDE12345" );
+        assertNull( provider( ).redirectToAccessControlXPage( request, ID_FORM_ANTS, RESOURCE_TYPE, _accessControl.getId( ) ) );
+
+        provider( ).deleteSessionDataForResource( request, ID_FORM_ANTS, RESOURCE_TYPE );
+
+        assertNull( request.getSession( ).getAttribute( SESSION_ATTRIBUTE_CODES ) );
+        assertNotNull( provider( ).redirectToAccessControlXPage( request, ID_FORM_ANTS, RESOURCE_TYPE, _accessControl.getId( ) ) );
+    }
+
+    /**
+     * The booking of a form that is not protected by the ANTS controller leaves the pre-demand codes in session.
+     */
+    @Test
+    public void testCodesAreKeptWhenAnotherFormIsBooked( )
+    {
+        MockHttpServletRequest request = request( "1" );
+        request.getSession( true ).setAttribute( SESSION_ATTRIBUTE_CODES, "ABCDE12345" );
+
+        provider( ).deleteSessionDataForResource( request, ID_FORM_FREE, RESOURCE_TYPE );
+
+        assertEquals( "ABCDE12345", request.getSession( ).getAttribute( SESSION_ATTRIBUTE_CODES ) );
     }
 
     private static AccessControlServiceProvider provider( )
