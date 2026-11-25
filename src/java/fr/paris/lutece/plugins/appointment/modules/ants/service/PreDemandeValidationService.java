@@ -88,8 +88,20 @@ public class PreDemandeValidationService
      */
     public static boolean checkPredemandeCodesValidationAndAppointments( List<String> codes ) throws IOException
     {
-        Map<String, PredemandeResponse> responseMap = getPreDemandeStatusAndAppointments( codes );
+        return areValidatedWithoutAppointment( getPreDemandeStatusAndAppointments( codes ), codes );
+    }
 
+    /**
+     * Checks the answer of the ANTS status API: every code is known, validated and has no appointment yet.
+     *
+     * @param responseMap
+     *            The answer of the API, by code
+     * @param codes
+     *            The predemande codes checked
+     * @return True if every code is validated and has no appointment
+     */
+    static boolean areValidatedWithoutAppointment( Map<String, PredemandeResponse> responseMap, List<String> codes )
+    {
         if ( responseMap.isEmpty( ) || !responseMap.keySet( ).containsAll( codes ) )
         {
             return false;
@@ -97,9 +109,10 @@ public class PreDemandeValidationService
 
         for ( PredemandeResponse predemande : responseMap.values( ) )
         {
+            // an answer without the "appointments" key gives a null list: no appointment
             List<PredemandeResponse.Appointment> appointments = predemande.getAppointments( );
 
-            if ( !appointments.isEmpty( ) || !PreDemandeStatusEnum.VALIDATED.name( ).equalsIgnoreCase( predemande.getStatus( ) ) )
+            if ( ( appointments != null && !appointments.isEmpty( ) ) || !PreDemandeStatusEnum.VALIDATED.name( ).equalsIgnoreCase( predemande.getStatus( ) ) )
             {
                 return false;
             }
